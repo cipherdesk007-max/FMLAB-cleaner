@@ -14,7 +14,7 @@ Tutto resta sul telefono: niente internet (tranne il controllo aggiornamenti), n
   <img src="screenshots/telefono.png" width="24%" alt="Telefono">
 </p>
 
-<sub>Le schermate di FMLAB Cleaner 1.8.3 (ultima versione prima delle correzioni estetiche) sono anche in [`screenshots/1.8.3/`](screenshots/1.8.3/).</sub>
+<sub>Schermate della 1.9.0. Quelle delle versioni precedenti sono in [`screenshots/`](screenshots/), una cartella per versione.</sub>
 
 ## Installazione
 

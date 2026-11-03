@@ -15,7 +15,7 @@ The app follows the iPhone language (Italian or English).
   <img src="screenshots/telefono.png" width="24%" alt="Phone">
 </p>
 
-<sub>FMLAB Cleaner 1.8.3 screenshots (last version before the cosmetic fixes) are also kept in [`screenshots/1.8.3/`](screenshots/1.8.3/).</sub>
+<sub>Screenshots of 1.9.0. Older versions are in [`screenshots/`](screenshots/), one folder per version.</sub>
 
 ## Install
 

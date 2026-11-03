@@ -1,6 +1,8 @@
 # Changelog — FMLAB Cleaner
 
 ## 1.9.0
+*Provata sull'iPhone: cartelle con i nomi giusti (Sul mio iPhone, iCloud Drive → Downloads) ed esplorabili.*
+
 - **Esplora le cartelle**: tocca una cartella (anche "Sul mio iPhone → LiveContainer") e vedi cosa c'è dentro,
   dal più pesante, con il peso di ogni sottocartella. Si entra nelle sottocartelle toccandole; un file si toglie
   scorrendo a sinistra (va nel cestino di File).
