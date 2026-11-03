@@ -266,9 +266,9 @@ final class Libreria: ObservableObject {
                 Task { @MainActor in self.progresso = p }
             }
         }.value
-        var r = r
-        for c in Categoria.allCases where c.approfondita { r.categorie[c] = risultato.categorie[c] }
-        risultato = r
+        var nuovo = r
+        for c in Categoria.allCases where c.approfondita { nuovo.categorie[c] = risultato.categorie[c] }
+        risultato = nuovo
         analizzata = true
         analisiInCorso = false
         await leggiCestino()
