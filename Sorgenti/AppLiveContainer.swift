@@ -160,15 +160,30 @@ final class SpazioLC: ObservableObject {
         for d in (try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? [] where !usati.contains(d.lastPathComponent) {
             var isDir: ObjCBool = false
             guard fm.fileExists(atPath: d.path, isDirectory: &isDir), isDir.boolValue else { continue }
-            let nomeC = (NSDictionary(contentsOf: d.appendingPathComponent("LCContainerInfo.plist")) as? [String: Any])?["name"] as? String
+            let infoC = NSDictionary(contentsOf: d.appendingPathComponent("LCContainerInfo.plist")) as? [String: Any] ?? [:]
+            // LiveContainer chiama il contenitore come la cartella (un codice): quello non e' un nome
+            let nomeC = (infoC["name"] as? String).flatMap { n in
+                n.isEmpty || n == d.lastPathComponent || UUID(uuidString: n) != nil ? nil : n
+            }
             // senza nome: provo a riconoscere l'app dalle sue impostazioni (Library/Preferences/<id app>.plist)
             let pref = ((try? fm.contentsOfDirectory(atPath: d.appendingPathComponent("Library/Preferences").path)) ?? [])
                 .filter { $0.hasSuffix(".plist") && !$0.hasPrefix("com.apple.") && !$0.lowercased().contains("livecontainer") }
                 .map { String($0.dropLast(6)) }.sorted { $0.count < $1.count }.first
+            let idApp = (infoC["appIdentifier"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? pref
+            let installata = idApp.flatMap { id in app.first { $0.bundleId == id } }
+            let nomeApp = installata?.nome ?? idApp.map(nomeDaIdentificativo)
             let data = (try? fm.attributesOfItem(atPath: d.path)[.modificationDate] as? Date)
                 .map { DateFormatter.localizedString(from: $0, dateStyle: .medium, timeStyle: .none) }
-            var c = Cartella(url: d, nome: nomeC ?? pref ?? L("Cartella senza nome"), byte: Disco.peso(d))
-            c.dettaglio = [data.map { L("modificata il %@", $0) }, nomeC == nil && pref == nil ? String(d.lastPathComponent.prefix(8)) : nil]
+            let nome: String
+            if let n = nomeApp {
+                nome = installata != nil ? L("%@ · dati vecchi", n) : (nomeC.map { "\(n) · \($0)" } ?? n)
+            } else {
+                nome = nomeC ?? L("App sconosciuta")
+            }
+            var c = Cartella(url: d, nome: nome, byte: Disco.peso(d))
+            c.dettaglio = [installata != nil ? L("l'app è installata ma usa un'altra cartella") : idApp,
+                           data.map { L("modificata il %@", $0) },
+                           nomeApp == nil && nomeC == nil ? String(d.lastPathComponent.prefix(8)) : nil]
                 .compactMap { $0 }.joined(separator: " · ")
             orfani.append(c)
         }
@@ -182,6 +197,24 @@ final class SpazioLC: ObservableObject {
             }
         }
         return (app.sorted { $0.totale > $1.totale }, orfani.sorted { $0.byte > $1.byte }, ipa)
+    }
+
+    /// "com.google.ios.youtube" → "YouTube": app note per nome, le altre dall'ultima parte dell'identificativo
+    nonisolated static func nomeDaIdentificativo(_ id: String) -> String {
+        let noti: [String: String] = [
+            "com.google.ios.youtube": "YouTube", "com.google.ios.youtubemusic": "YouTube Music",
+            "net.whatsapp.WhatsApp": "WhatsApp", "ph.telegra.Telegraph": "Telegram",
+            "com.burbn.instagram": "Instagram", "com.facebook.Facebook": "Facebook",
+            "com.zhiliaoapp.musically": "TikTok", "com.atebits.Tweetie2": "X (Twitter)",
+            "com.spotify.client": "Spotify", "dev.linuxrunner.app": "LinuxRunner",
+            "com.fmlab.puliziafoto": "FMLAB Cleaner", "com.netflix.Netflix": "Netflix",
+            "com.reddit.Reddit": "Reddit", "com.hammerandchisel.discord": "Discord",
+            "com.toyopagroup.picaboo": "Snapchat", "com.google.chrome.ios": "Chrome"]
+        if let n = noti[id] ?? noti.first(where: { $0.key.lowercased() == id.lowercased() })?.value { return n }
+        let generiche: Set<String> = ["app", "ios", "iphone", "mobile", "client", "main", "prod", "release", "lite"]
+        let parti = id.split(separator: ".").map(String.init)
+        let p = parti.reversed().first { !generiche.contains($0.lowercased()) && $0.count > 1 } ?? parti.last ?? id
+        return p.prefix(1).uppercased() + p.dropFirst()
     }
 
     func svuotaCache(_ a: AppOspitata) async {

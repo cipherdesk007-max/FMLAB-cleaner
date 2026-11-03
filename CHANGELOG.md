@@ -1,5 +1,14 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.5
+- **Scheda App → "Dati di app tolte" con nomi veri**: al posto del codice tagliato ("DAECCFC4-C87F-…") si vede
+  l'app a cui appartenevano i dati (es. "YouTube"), letta da LiveContainer o dalle impostazioni dell'app, con
+  l'identificativo sotto. Se l'app è ancora installata ma usa un'altra cartella, lo dice ("YouTube · dati vecchi").
+  Solo se non c'è nessun indizio compare "App sconosciuta" con l'inizio del codice.
+
+*English*: App tab: leftover data folders show the real app name (e.g. "YouTube") instead of a truncated code,
+and say when they're old data of an app that is still installed.
+
 ## 1.8.4
 - **Difetti estetici corretti**:
   - sotto "Aggiungi una cartella" si vedevano gli asterischi (`**Seleziona**`, `**Apri**`): ora sono in grassetto;

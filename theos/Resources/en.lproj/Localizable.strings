@@ -126,7 +126,6 @@
 "1 elemento" = "1 item";
 "1 giorno" = "1 day";
 "meno di un'ora" = "less than an hour";
-"Cartella senza nome" = "Unnamed folder";
 "modificata il %@" = "modified %@";
 "Eliminati di recente" = "Recently Deleted";
 "Le foto tolte occupano spazio per 30 giorni. Per svuotarle tutte insieme: Foto → Raccolte → Eliminati di recente → Seleziona → **Elimina tutto** (in basso a sinistra): toglie anche quelle non ancora caricate sullo schermo." = "Removed photos keep using space for 30 days. To empty them all at once: Photos → Collections → Recently Deleted → Select → **Delete All** (bottom left): it also removes those not yet loaded on screen.";
@@ -216,3 +215,6 @@
 "1 file" = "1 file";
 "%lld file" = "%lld files";
 "1 ora" = "1 hour";
+"%@ · dati vecchi" = "%@ · old data";
+"App sconosciuta" = "Unknown app";
+"l'app è installata ma usa un'altra cartella" = "the app is installed but uses another folder";
