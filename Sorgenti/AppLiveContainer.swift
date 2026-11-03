@@ -11,6 +11,7 @@ struct Cartella: Identifiable, Hashable {
     let nome: String
     var byte: Int64
     var cache: Int64 = 0
+    var dettaglio = ""
     var id: String { url.path }
 }
 
@@ -110,7 +111,16 @@ final class SpazioLC: ObservableObject {
             var isDir: ObjCBool = false
             guard fm.fileExists(atPath: d.path, isDirectory: &isDir), isDir.boolValue else { continue }
             let nomeC = (NSDictionary(contentsOf: d.appendingPathComponent("LCContainerInfo.plist")) as? [String: Any])?["name"] as? String
-            orfani.append(Cartella(url: d, nome: nomeC ?? d.lastPathComponent, byte: Disco.peso(d)))
+            // senza nome: provo a riconoscere l'app dalle sue impostazioni (Library/Preferences/<id app>.plist)
+            let pref = ((try? fm.contentsOfDirectory(atPath: d.appendingPathComponent("Library/Preferences").path)) ?? [])
+                .filter { $0.hasSuffix(".plist") && !$0.hasPrefix("com.apple.") && !$0.lowercased().contains("livecontainer") }
+                .map { String($0.dropLast(6)) }.sorted { $0.count < $1.count }.first
+            let data = (try? fm.attributesOfItem(atPath: d.path)[.modificationDate] as? Date)
+                .map { DateFormatter.localizedString(from: $0, dateStyle: .medium, timeStyle: .none) }
+            var c = Cartella(url: d, nome: nomeC ?? pref ?? L("Cartella senza nome"), byte: Disco.peso(d))
+            c.dettaglio = [data.map { L("modificata il %@", $0) }, nomeC == nil && pref == nil ? String(d.lastPathComponent.prefix(8)) : nil]
+                .compactMap { $0 }.joined(separator: " · ")
+            orfani.append(c)
         }
         // file .ipa rimasti da installazioni (Inbox di LiveContainer e file temporanei)
         var ipa: [Cartella] = []
@@ -205,7 +215,8 @@ struct SchedaApp: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(c.nome).lineLimit(1)
-                Text(formatoByte(c.byte)).font(.caption).foregroundColor(.secondary)
+                Text(c.dettaglio.isEmpty ? formatoByte(c.byte) : "\(formatoByte(c.byte)) · \(c.dettaglio)")
+                    .font(.caption).foregroundColor(.secondary)
             }
             Spacer()
             Button("Togli") { daEliminare = c }.buttonStyle(.bordered).tint(.red)

@@ -1,5 +1,14 @@
 # Changelog — FMLAB Cleaner
 
+## 1.4.1
+- Rifiniture: "1 elemento" al singolare, "—" invece di "Zero KB", "meno di un'ora" invece di "0 ore",
+  spazio libero dell'iPhone in cima alla Pulizia (si aggiorna dopo ogni pulizia).
+- Scheda App: le cartelle di app tolte mostrano il nome dell'app quando si riconosce (dalle sue impostazioni)
+  e la data dell'ultima modifica, invece di un codice.
+
+*English*: polish (singular/plural, "—" for empty, uptime under an hour, free iPhone space on top), orphaned
+folders show the app name when recognizable plus last-modified date.
+
 ## 1.4.0
 - **Colori FMLAB**: rosso del logo su nero, logo nell'app.
 - **Aggiornamento senza file**: "Copia link di installazione" e in LiveContainer + → Installa dall'URL

@@ -54,3 +54,6 @@ enum Vibrazione {
 func L(_ s: String) -> String { NSLocalizedString(s, comment: "") }
 /// Testo tradotto con valori: L("%lld video saltati", n)
 func L(_ s: String, _ v: CVarArg...) -> String { String(format: NSLocalizedString(s, comment: ""), arguments: v) }
+
+/// "1 elemento" / "5 elementi"
+func contaElementi(_ n: Int) -> String { n == 1 ? L("1 elemento") : L("%lld elementi", n) }

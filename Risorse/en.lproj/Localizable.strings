@@ -126,3 +126,8 @@
 "in attesa" = "waiting";
 "interrotta" = "interrupted";
 "spento" = "off";
+"1 elemento" = "1 item";
+"1 giorno" = "1 day";
+"meno di un'ora" = "less than an hour";
+"Cartella senza nome" = "Unnamed folder";
+"modificata il %@" = "modified %@";

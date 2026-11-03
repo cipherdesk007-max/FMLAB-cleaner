@@ -101,7 +101,7 @@ struct Telefono: View {
                      L("%@ su %@", formatoByte(s.libero), formatoByte(s.totale)))
                 riga("memorychip", L("Memoria (RAM)"), formatoByte(Int64(s.ram)))
                 riga("clock.arrow.circlepath", L("Acceso da"),
-                     s.giorniAcceso > 0 ? L("%lld giorni", s.giorniAcceso) : L("%lld ore", Int(s.acceso / 3600)))
+                     s.giorniAcceso > 1 ? L("%lld giorni", s.giorniAcceso) : s.giorniAcceso == 1 ? L("1 giorno") : s.acceso < 3600 ? L("meno di un'ora") : L("%lld ore", Int(s.acceso / 3600)))
             }
             Section {
                 ForEach(Array(s.consigli.enumerated()), id: \.offset) { _, c in

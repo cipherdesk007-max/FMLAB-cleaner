@@ -152,11 +152,11 @@ struct Riepilogo: View {
                             Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
                             VStack(alignment: .leading) {
                                 Text(c.titolo)
-                                Text("\(lib.elementi(c).filter { !$0.daTenere }.count) elementi")
+                                Text(contaElementi(lib.elementi(c).filter { !$0.daTenere }.count))
                                     .font(.caption).foregroundColor(.secondary)
                             }
                             Spacer()
-                            Text(formatoByte(lib.peso(c))).foregroundColor(.secondary).monospacedDigit()
+                            Text(lib.peso(c) > 0 ? formatoByte(lib.peso(c)) : "—").foregroundColor(.secondary).monospacedDigit()
                         }
                     }
                     .disabled(lib.elementi(c).isEmpty)
