@@ -1,0 +1,32 @@
+name: PuliziaFoto
+options:
+  bundleIdPrefix: com.fmlab
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.3.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  PuliziaFoto:
+    type: application
+    platform: iOS
+    sources:
+      - Sorgenti
+      - Risorse
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fmlab.puliziafoto
+        PRODUCT_NAME: PuliziaFoto
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "FMLAB Cleaner"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Per trovare video grandi, screenshot e doppioni. Le foto restano sul telefono."
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""

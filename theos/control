@@ -1,0 +1,8 @@
+Package: com.fmlab.puliziafoto
+Name: FMLAB Cleaner
+Version: 1.1.0
+Architecture: iphoneos-arm
+Description: Pulizia di foto e video e stato del telefono
+Maintainer: FMlab
+Author: FMlab
+Section: Utilities

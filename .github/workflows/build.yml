@@ -1,0 +1,61 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  ipa:
+    # compilata su Linux con Theos (toolchain Swift per iOS + SDK iPhoneOS 16.5): niente Mac necessario
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Theos, toolchain Swift per iOS e SDK
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential fakeroot rsync curl perl git libxml2 libz3-dev libtinfo6 zip unzip >/dev/null
+          git clone --quiet --recursive --depth 1 https://github.com/theos/theos "$HOME/theos"
+          curl -sL https://github.com/kabiroberai/swift-toolchain-linux/releases/download/v2.3.0/swift-5.8-ubuntu20.04.tar.xz | tar -xJf - -C "$HOME/theos/toolchain/"
+          git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks /tmp/sdks
+          git -C /tmp/sdks sparse-checkout set iPhoneOS16.5.sdk
+          mv /tmp/sdks/iPhoneOS16.5.sdk "$HOME/theos/sdks/"
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+      - name: Compila
+        run: |
+          V=$(tr -d '[:space:]' < VERSIONE)
+          echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "VERSIONE non valida: $V"; exit 1; }
+          echo "V=$V" >> "$GITHUB_ENV"
+          cd theos
+          mkdir -p Sources && cp ../Sorgenti/*.swift Sources/
+          sed -i "s/@VERSIONE@/$V/; s/@BUILD@/${GITHUB_RUN_NUMBER}/" Resources/Info.plist
+          sed -i "s/^Version: .*/Version: $V/" control
+          make package FINALPACKAGE=1 messages=yes 2>&1 | tail -40
+          cp packages/*.ipa ../FMLAB-Cleaner.ipa
+          cd .. && unzip -l FMLAB-Cleaner.ipa
+          # controlli sul pacchetto: binario arm64 e versione giusta nel Info.plist
+          unzip -p FMLAB-Cleaner.ipa Payload/PuliziaFoto.app/PuliziaFoto | head -c 4 | od -An -tx1 | grep -q "cf fa ed fe"
+          unzip -p FMLAB-Cleaner.ipa Payload/PuliziaFoto.app/Info.plist | grep -q "<string>$V</string>"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FMLAB-Cleaner-${{ env.V }}
+          path: FMLAB-Cleaner.ipa
+      - name: Pubblica (versione numerata + "ultima", che l'app usa per aggiornarsi)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$V" > VERSIONE.txt
+          NOTE=$(awk '/^## /{n++} n==1' CHANGELOG.md | tail -n +2)
+          gh release view "v$V" >/dev/null 2>&1 || gh release create "v$V" FMLAB-Cleaner.ipa --target "$GITHUB_SHA" --title "FMLAB Cleaner $V" --notes "$NOTE"
+          gh release delete ultima --yes --cleanup-tag 2>/dev/null || true
+          cp VERSIONE.txt VERSIONE
+          gh release create ultima FMLAB-Cleaner.ipa VERSIONE --target "$GITHUB_SHA" --latest \
+            --title "FMLAB Cleaner $V (ultima)" \
+            --notes "Ultima versione di FMLAB Cleaner. Installazione: LiveContainer → + in alto a destra → FMLAB-Cleaner.ipa. $NOTE"
