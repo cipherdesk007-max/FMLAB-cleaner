@@ -138,7 +138,7 @@ struct Compressione: View {
     @EnvironmentObject var lib: Libreria
     @Environment(\.dismiss) var chiudi
     let elementi: [Elemento]
-    var lavoro: Lavoro = .comprimi
+    var tipo: Lavoro = .comprimi
     @State private var voci: [VoceCompressione] = []
     @State private var lavoro: Task<Void, Never>?
     @State private var finito = false
@@ -146,14 +146,14 @@ struct Compressione: View {
 
     // video: peso prima - dopo; Live Photo: Elemento.byte e' gia' il peso del video che sparisce
     var risparmio: Int64 {
-        voci.filter(\.fatto).reduce(0) { $0 + (lavoro == .comprimi ? $1.elemento.byte - $1.nuovo : $1.elemento.byte) }
+        voci.filter(\.fatto).reduce(0) { $0 + (tipo == .comprimi ? $1.elemento.byte - $1.nuovo : $1.elemento.byte) }
     }
 
     var body: some View {
         NavigationView {
             List {
                 Section {
-                    Text(lavoro.spiegazione)
+                    Text(tipo.spiegazione)
                         .font(.footnote).foregroundColor(.secondary)
                     if risparmio > 0 {
                         Text("Risparmio finora: \(formatoByte(risparmio))").font(.headline).foregroundColor(.green)
@@ -165,7 +165,7 @@ struct Compressione: View {
                         HStack(spacing: 12) {
                             Miniatura(asset: v.elemento.asset).frame(width: 52, height: 52).cornerRadius(6)
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(v.fatto && lavoro == .comprimi ? "\(formatoByte(v.elemento.byte)) → \(formatoByte(v.nuovo))" : formatoByte(v.elemento.byte))
+                                Text(v.fatto && tipo == .comprimi ? "\(formatoByte(v.elemento.byte)) → \(formatoByte(v.nuovo))" : formatoByte(v.elemento.byte))
                                     .monospacedDigit()
                                 if !v.fatto && v.avanzamento > 0 && v.avanzamento < 1 {
                                     ProgressView(value: v.avanzamento)
@@ -176,7 +176,7 @@ struct Compressione: View {
                     }
                 }
             }
-            .navigationTitle(lavoro.titolo)
+            .navigationTitle(tipo.titolo)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -186,7 +186,7 @@ struct Compressione: View {
         }
         .onAppear {
             guard voci.isEmpty else { return }
-            voci = elementi.filter { lavoro == .soloFoto || Compressore.adatto($0.asset) }.map { VoceCompressione(elemento: $0) }
+            voci = elementi.filter { tipo == .soloFoto || Compressore.adatto($0.asset) }.map { VoceCompressione(elemento: $0) }
             let saltati = elementi.count - voci.count
             if saltati > 0 { messaggio = L("%lld video saltati (rallentatori o Cinematografici).", saltati) }
             lavoro = Task { await esegui() }
@@ -202,7 +202,7 @@ struct Compressione: View {
             voci[i].stato = L("compressione…")
             let el = voci[i].elemento
             do {
-                if lavoro == .soloFoto {
+                if tipo == .soloFoto {
                     let n = try await Compressore.soloFoto(el)
                     voci[i].nuovo = n
                     voci[i].fatto = true

@@ -290,7 +290,7 @@ struct Elenco: View {
             .background(.ultraThinMaterial)
             // (foglio agganciato qui: due .sheet sulla stessa vista non funzionano su iOS 15)
             .sheet(isPresented: $comprimi, onDismiss: { scelti = [] }) {
-                Compressione(elementi: sceltiElementi, lavoro: lavoro).environmentObject(lib)
+                Compressione(elementi: sceltiElementi, tipo: lavoro).environmentObject(lib)
             }
         }
         .confirmationDialog("Togliere \(scelti.count) elementi (\(formatoByte(pesoScelti)))?",
