@@ -154,6 +154,9 @@ final class ArchivioFile: ObservableObject {
     /// raggiungibile, senza scegliere niente. Se Safari scarica li', i download si puliscono da soli.
     var automatica: URL? { SpazioLC.radice }
 
+    /// "Sul mio iPhone" (radice "File Provider Storage") e' gia' nell'elenco: vede tutto, non serve altro
+    var haSulMioIPhone: Bool { cartelle.contains { $0.lastPathComponent == "File Provider Storage" } }
+
     init() { carica() }
 
     /// Cartelle che iOS non lascia ricordare (segnalibro non creato): valgono finche' l'app resta aperta.
@@ -311,11 +314,28 @@ struct SchedaFile: View {
                 }
             }
             Section {
-                if archivio.automatica != nil {
-                    Label(L("Sul mio iPhone → LiveContainer (automatica)"), systemImage: "folder.fill").foregroundColor(Tema.rosso)
+                if !archivio.haSulMioIPhone {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(L("Consigliato: aggiungi Sul mio iPhone"), systemImage: "star.fill")
+                            .font(.headline).foregroundColor(Tema.rosso)
+                        Text(L("Contiene Downloads e le cartelle di tutte le app: così l'app vede tutto e puoi esplorare cosa c'è dentro."))
+                            .font(.footnote).foregroundColor(.secondary)
+                        TestoMd(L("Nel selettore: **Sfoglia** in basso → **Seleziona** in alto → spunta **Sul mio iPhone** → **Apri**."))
+                            .font(.footnote)
+                        Button { scegli = true } label: {
+                            Text(L("Aggiungi Sul mio iPhone")).frame(maxWidth: .infinity)
+                        }.buttonStyle(.borderedProminent).tint(Tema.rosso)
+                    }
+                    .padding(.vertical, 4)
+                }
+                if let a = archivio.automatica {
+                    NavigationLink(destination: EsploraCartella(url: a, base: nil)) {
+                        Label(L("Sul mio iPhone → LiveContainer (automatica)"), systemImage: "folder.fill").foregroundColor(Tema.rosso)
+                    }
                 }
                 ForEach(archivio.cartelle, id: \.path) { c in
                     let dentro = archivio.cartelle.first { $0.path != c.path && c.path.hasPrefix($0.path + "/") }
+                    NavigationLink(destination: EsploraCartella(url: c, base: c)) {
                     Label {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(nomeCartella(c)).lineLimit(1)
@@ -324,7 +344,8 @@ struct SchedaFile: View {
                                     .font(.caption).foregroundColor(.secondary)
                             }
                         }
-                    } icon: { Image(systemName: "folder") }
+                    } icon: { Image(systemName: nomeCartella(c) == L("Sul mio iPhone") ? "iphone" : "folder") }
+                    }
                         .swipeActions { Button(L("Togli"), role: .destructive) { archivio.togliCartella(c) } }
                 }
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
@@ -340,7 +361,7 @@ struct SchedaFile: View {
             } header: { Text(L("Cartelle")) } footer: {
                 Text(archivio.automatica != nil
                      ? L("Senza scegliere niente: in Impostazioni → App → Safari → Download scegli \"Sul mio iPhone → LiveContainer\": da lì in poi i download li pulisco da solo. Per altre cartelle (Download su iCloud) usa \"Aggiungi una cartella\".")
-                     : L("Consiglio: aggiungi \"Download\" e \"Sul mio iPhone\". Scorri a sinistra su una cartella per toglierla dall'elenco."))
+                     : L("Tocca una cartella per vedere cosa c'è dentro, dal più pesante. Scorri a sinistra per toglierla dall'elenco."))
             }
             if !archivio.cartelle.isEmpty || archivio.automatica != nil {
                 Section(L("Cosa togliere")) {

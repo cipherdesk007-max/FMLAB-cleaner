@@ -31,7 +31,7 @@ It installs over the old version and keeps your data. Works with SideStore/AltSt
 | Tab | What it does |
 |---|---|
 | **Clean** | **Similar photos** (keeps the sharpest), **blurry** and **dark** photos with the deep analysis; large videos (largest first; remove or **compress** to about half), **Live Photo → photo** (drops the 3-second video), identical duplicates (the original stays), screen recordings, screenshots, unpicked burst shots. **Empty "Recently Deleted"** in one go |
-| **Files** | Files-app folders you pick (Downloads, On My iPhone, iCloud Drive): large files, verified duplicates, archives and installers, old files. Everything goes to the Files trash (30 days). Inside LiveContainer the "On My iPhone → LiveContainer" folder is cleaned automatically and the folder picker works with no settings to change |
+| **Files** | Files-app folders you pick (Downloads, On My iPhone, iCloud Drive): large files, verified duplicates, archives and installers, old files; tap a folder to **explore** what's inside, largest first. Recommended: add **On My iPhone**, which contains everything. Everything goes to the Files trash (30 days). Inside LiveContainer the "On My iPhone → LiveContainer" folder is cleaned automatically and the folder picker works with no settings to change |
 | **Apps** | Only inside LiveContainer: space used by each hosted app, clear caches and temp files, remove leftover .ipa files and data of uninstalled apps |
 | **Phone** | Battery, Low Power Mode, thermal state as reported by iOS, storage, memory, uptime, tips ordered by impact |
 

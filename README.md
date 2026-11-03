@@ -33,7 +33,7 @@ dall'URL → Incolla. Si installa sopra la versione vecchia e i dati restano. Fu
 | Scheda | Cosa fa |
 |---|---|
 | **Pulizia** | **Foto simili** (resta la più nitida), **sfocate** e **buie** con l'analisi approfondita; video grandi (dal più pesante, da togliere o **comprimere** a metà peso), **Live Photo → foto** (via il video di 3 secondi), doppioni identici (l'originale resta), registrazioni dello schermo, screenshot, scatti a raffica non scelti. **Svuota "Eliminati di recente"** tutto in una volta |
-| **File** | Cartelle dell'app File scelte da te (Download, Sul mio iPhone, iCloud Drive): file grandi, doppi (verificati), archivi e installazioni, file vecchi. Tutto va nel cestino di File (30 giorni). Dentro LiveContainer la cartella "Sul mio iPhone → LiveContainer" si pulisce da sola e il selettore di cartelle funziona senza impostazioni da cambiare |
+| **File** | Cartelle dell'app File scelte da te (Download, Sul mio iPhone, iCloud Drive): file grandi, doppi (verificati), archivi e installazioni, file vecchi; tocca una cartella per **esplorare** cosa c'è dentro, dal più pesante. Consigliato: aggiungere **Sul mio iPhone**, che contiene tutto. Tutto va nel cestino di File (30 giorni). Dentro LiveContainer la cartella "Sul mio iPhone → LiveContainer" si pulisce da sola e il selettore di cartelle funziona senza impostazioni da cambiare |
 | **App** | Solo dentro LiveContainer: quanto occupa ogni app ospitata, svuota cache e file temporanei, toglie i file .ipa rimasti e i dati di app già disinstallate |
 | **Telefono** | Batteria, risparmio energetico, temperatura come la comunica iOS, spazio, memoria, da quanto è acceso, consigli in ordine di effetto |
 

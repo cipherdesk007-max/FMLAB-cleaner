@@ -1,5 +1,15 @@
 # Changelog — FMLAB Cleaner
 
+## 1.9.0
+- **Esplora le cartelle**: tocca una cartella (anche "Sul mio iPhone → LiveContainer") e vedi cosa c'è dentro,
+  dal più pesante, con il peso di ogni sottocartella. Si entra nelle sottocartelle toccandole; un file si toglie
+  scorrendo a sinistra (va nel cestino di File).
+- **L'app consiglia "Sul mio iPhone"** finché non è nell'elenco: contiene Downloads e le cartelle di tutte le app,
+  quindi vede tutto. Con i passi del selettore e un pulsante per aggiungerla.
+
+*English*: explore folders (contents largest first, drill into subfolders, swipe to remove a file); the app now
+recommends adding "On My iPhone", which contains everything.
+
 ## 1.8.7
 - **Nomi giusti per le cartelle**: "File Provider Storage" ora si legge **Sul mio iPhone** (e la radice di iCloud
   **iCloud Drive**); le sottocartelle dirette diventano "Sul mio iPhone → Downloads". Vale anche per la cartella

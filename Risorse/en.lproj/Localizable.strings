@@ -191,7 +191,6 @@
 "Download, Sul mio iPhone, iCloud Drive: aggiungi una cartella una volta e l'app la analizza da sola. I file tolti vanno nel cestino dell'app File per 30 giorni." = "Downloads, On My iPhone, iCloud Drive: add a folder once and the app scans it by itself. Removed files go to the Files app trash for 30 days.";
 "Aggiungi una cartella" = "Add a folder";
 "Cartelle" = "Folders";
-"Consiglio: aggiungi \"Download\" e \"Sul mio iPhone\". Scorri a sinistra su una cartella per toglierla dall'elenco." = "Tip: add \"Downloads\" and \"On My iPhone\". Swipe left on a folder to remove it from the list.";
 "Analizzo i file…" = "Scanning files…";
 "File" = "Files";
 "solo su iCloud" = "iCloud only";
@@ -222,3 +221,11 @@
 "iOS non risponde" = "iOS is not responding";
 "Sul mio iPhone" = "On My iPhone";
 "già compresa in %@: puoi toglierla" = "already inside %@: you can remove it";
+"Consigliato: aggiungi Sul mio iPhone" = "Recommended: add On My iPhone";
+"Contiene Downloads e le cartelle di tutte le app: così l'app vede tutto e puoi esplorare cosa c'è dentro." = "It contains Downloads and every app's folder: this way the app sees everything and you can explore what's inside.";
+"Nel selettore: **Sfoglia** in basso → **Seleziona** in alto → spunta **Sul mio iPhone** → **Apri**." = "In the picker: **Browse** at the bottom → **Select** at the top → check **On My iPhone** → **Open**.";
+"Aggiungi Sul mio iPhone" = "Add On My iPhone";
+"Tocca una cartella per vedere cosa c'è dentro, dal più pesante. Scorri a sinistra per toglierla dall'elenco." = "Tap a folder to see what's inside, largest first. Swipe left to remove it from the list.";
+"Calcolo…" = "Calculating…";
+"Dal più pesante. Tocca una cartella per aprirla, scorri a sinistra su un file per toglierlo." = "Largest first. Tap a folder to open it, swipe left on a file to remove it.";
+"Cartella vuota" = "Empty folder";
