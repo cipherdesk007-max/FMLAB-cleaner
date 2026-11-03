@@ -1,6 +1,8 @@
 # Changelog — FMLAB Cleaner
 
 ## 1.8.5
+*Provata sull'iPhone: la cartella orfana ora si legge "LinuxRunner · dati vecchi".*
+
 - **Scheda App → "Dati di app tolte" con nomi veri**: al posto del codice tagliato ("DAECCFC4-C87F-…") si vede
   l'app a cui appartenevano i dati (es. "YouTube"), letta da LiveContainer o dalle impostazioni dell'app, con
   l'identificativo sotto. Se l'app è ancora installata ma usa un'altra cartella, lo dice ("YouTube · dati vecchi").
