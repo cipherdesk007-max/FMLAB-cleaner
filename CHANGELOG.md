@@ -1,12 +1,17 @@
 # Changelog — FMLAB Cleaner
 
 ## 1.4.1
+- **Eliminati di recente sempre visibile** in cima alla Pulizia: se iOS lascia leggere l'album, numero, peso e
+  "Svuota tutto"; se no, i passi per "Elimina tutto" e il pulsante **Apri Foto**.
+- **WhatsApp e Telegram**: pulsante **Apri** e i passi esatti per liberare spazio (Gestisci spazio, Svuota cache,
+  Salva nel rullino spento). Nessuna app iOS può cancellare i loro file al posto loro.
 - Rifiniture: "1 elemento" al singolare, "—" invece di "Zero KB", "meno di un'ora" invece di "0 ore",
   spazio libero dell'iPhone in cima alla Pulizia (si aggiorna dopo ogni pulizia).
 - Scheda App: le cartelle di app tolte mostrano il nome dell'app quando si riconosce (dalle sue impostazioni)
   e la data dell'ultima modifica, invece di un codice.
 
-*English*: polish (singular/plural, "—" for empty, uptime under an hour, free iPhone space on top), orphaned
+*English*: Recently Deleted card always shown (empty-all when iOS allows it, otherwise the manual steps
+and an Open Photos button); WhatsApp/Telegram cleanup guide with Open buttons; polish (singular/plural, "—" for empty, uptime under an hour, free iPhone space on top), orphaned
 folders show the app name when recognizable plus last-modified date.
 
 ## 1.4.0

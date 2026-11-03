@@ -98,6 +98,7 @@ struct Riepilogo: View {
     @EnvironmentObject var lib: Libreria
     @EnvironmentObject var agg: Aggiornamenti
     @State private var svuota = false
+    @Environment(\.openURL) var apri
     @State private var erroreCestino: String?
 
     var recuperabile: Int64 { Categoria.allCases.reduce(0) { $0 + lib.peso($1) } }
@@ -138,12 +139,26 @@ struct Riepilogo: View {
                         .buttonStyle(.borderedProminent).tint(.red)
                     }
                     .padding(.vertical, 4)
-                } else if lib.cestinoNonRaggiungibile {
-                    Text("Per svuotare \"Eliminati di recente\" tutto insieme: Foto → Raccolte → Eliminati di recente → Seleziona → **Elimina tutto** (in basso a sinistra): toglie anche le foto non ancora caricate sullo schermo.")
-                        .font(.footnote)
                 } else if lib.cestinoInLettura {
                     HStack { ProgressView(); Text("Controllo Eliminati di recente…").font(.footnote).foregroundColor(.secondary) }
+                } else {
+                    // iOS non lascia leggere l'album alle app: si spiega il modo piu' veloce a mano
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Eliminati di recente", systemImage: "trash").font(.headline)
+                        Text("Le foto tolte occupano spazio per 30 giorni. Per svuotarle tutte insieme: Foto → Raccolte → Eliminati di recente → Seleziona → **Elimina tutto** (in basso a sinistra): toglie anche quelle non ancora caricate sullo schermo.")
+                            .font(.footnote)
+                        Button { if let u = URL(string: "photos-redirect://") { apri(u) } } label: {
+                            Label("Apri Foto", systemImage: "photo.on.rectangle").frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(.vertical, 4)
                 }
+            }
+            Section {
+                AltreApp()
+            } header: { Text("WhatsApp e Telegram") } footer: {
+                Text("iOS chiude ogni app nella sua cartella: nessuna app può cancellare i file di WhatsApp o Telegram al posto loro. Da qui li apri sulla pagina giusta in due tocchi.")
             }
             Section("Cosa togliere") {
                 ForEach(Categoria.allCases) { c in
@@ -421,5 +436,34 @@ struct Anteprima: View {
         let a = elemento.asset
         let d = a.creationDate.map { DateFormatter.localizedString(from: $0, dateStyle: .medium, timeStyle: .short) } ?? "?"
         return "\(d) · \(a.pixelWidth)×\(a.pixelHeight) · \(formatoByte(elemento.byte))"
+    }
+}
+
+
+// MARK: - WhatsApp e Telegram: guida diretta alla pagina che libera spazio
+struct AltreApp: View {
+    @Environment(\.openURL) var apri
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            voce(icona: "message.fill", nome: "WhatsApp", url: "whatsapp://",
+                 passi: L("Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione, apri le chat più pesanti e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento, così le foto non si duplicano in Foto."))
+            Divider()
+            voce(icona: "paperplane.fill", nome: "Telegram", url: "tg://settings",
+                 passi: L("Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache (i messaggi restano sul cloud di Telegram). Imposta \"Conserva media\" a 1 settimana e un limite alla cache."))
+        }
+        .padding(.vertical, 4)
+    }
+
+    func voce(icona: String, nome: String, url: String, passi: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label(nome, systemImage: icona).font(.headline)
+                Spacer()
+                Button(L("Apri")) { if let u = URL(string: url) { apri(u) } }
+                    .buttonStyle(.bordered)
+            }
+            Text(passi).font(.footnote).foregroundColor(.secondary)
+        }
     }
 }

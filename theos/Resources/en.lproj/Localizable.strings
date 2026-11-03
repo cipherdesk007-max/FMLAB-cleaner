@@ -131,3 +131,11 @@
 "meno di un'ora" = "less than an hour";
 "Cartella senza nome" = "Unnamed folder";
 "modificata il %@" = "modified %@";
+"Eliminati di recente" = "Recently Deleted";
+"Le foto tolte occupano spazio per 30 giorni. Per svuotarle tutte insieme: Foto → Raccolte → Eliminati di recente → Seleziona → **Elimina tutto** (in basso a sinistra): toglie anche quelle non ancora caricate sullo schermo." = "Removed photos keep using space for 30 days. To empty them all at once: Photos → Collections → Recently Deleted → Select → **Delete All** (bottom left): it also removes those not yet loaded on screen.";
+"Apri Foto" = "Open Photos";
+"WhatsApp e Telegram" = "WhatsApp and Telegram";
+"iOS chiude ogni app nella sua cartella: nessuna app può cancellare i file di WhatsApp o Telegram al posto loro. Da qui li apri sulla pagina giusta in due tocchi." = "iOS keeps every app in its own sandbox: no app can delete WhatsApp or Telegram files for them. From here you open them and follow two steps.";
+"Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione, apri le chat più pesanti e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento, così le foto non si duplicano in Foto." = "Settings → Storage and Data → Manage Storage: sort by size, open the biggest chats and remove videos and forwarded files. Then Settings → Chats → Save to Photos: off, so photos don't get duplicated in Photos.";
+"Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache (i messaggi restano sul cloud di Telegram). Imposta \"Conserva media\" a 1 settimana e un limite alla cache." = "Settings → Data and Storage → Storage Usage → Clear Cache (messages stay in Telegram's cloud). Set \"Keep Media\" to 1 week and a cache limit.";
+"Apri" = "Open";
