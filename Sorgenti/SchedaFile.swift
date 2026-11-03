@@ -126,6 +126,21 @@ enum AnalisiFile {
     }
 }
 
+/// Nome leggibile di una cartella dell'app File: "File Provider Storage" e' "Sul mio iPhone",
+/// "com~apple~CloudDocs" e' "iCloud Drive"; le sottocartelle dirette diventano "Sul mio iPhone → Downloads".
+func nomeCartella(_ u: URL) -> String {
+    func radice(_ n: String) -> String? {
+        switch n {
+        case "File Provider Storage": return L("Sul mio iPhone")
+        case "com~apple~CloudDocs": return "iCloud Drive"
+        default: return nil
+        }
+    }
+    if let r = radice(u.lastPathComponent) { return r }
+    if let r = radice(u.deletingLastPathComponent().lastPathComponent) { return "\(r) → \(u.lastPathComponent)" }
+    return u.lastPathComponent
+}
+
 @MainActor
 final class ArchivioFile: ObservableObject {
     @Published var cartelle: [URL] = []
@@ -300,7 +315,16 @@ struct SchedaFile: View {
                     Label(L("Sul mio iPhone → LiveContainer (automatica)"), systemImage: "folder.fill").foregroundColor(Tema.rosso)
                 }
                 ForEach(archivio.cartelle, id: \.path) { c in
-                    Label(c.lastPathComponent, systemImage: "folder").lineLimit(1)
+                    let dentro = archivio.cartelle.first { $0.path != c.path && c.path.hasPrefix($0.path + "/") }
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(nomeCartella(c)).lineLimit(1)
+                            if let d = dentro {
+                                Text(L("già compresa in %@: puoi toglierla", nomeCartella(d)))
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    } icon: { Image(systemName: "folder") }
                         .swipeActions { Button(L("Togli"), role: .destructive) { archivio.togliCartella(c) } }
                 }
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
@@ -382,7 +406,7 @@ struct ElencoFile: View {
                               tipo == .doppioni ? L("gruppo %lld", f.gruppo) : nil,
                               f.daTenere ? L("TIENI") : nil].compactMap { $0 }.joined(separator: " · "))
                             .font(.caption).foregroundColor(.secondary)
-                        Text(f.url.deletingLastPathComponent().lastPathComponent).font(.caption2).foregroundColor(.secondary)
+                        Text(nomeCartella(f.url.deletingLastPathComponent())).font(.caption2).foregroundColor(.secondary)
                     }
                 }
                 .contentShape(Rectangle())

@@ -220,3 +220,5 @@
 "l'app è installata ma usa un'altra cartella" = "the app is installed but uses another folder";
 "%lld non tolti. %@" = "%lld not removed. %@";
 "iOS non risponde" = "iOS is not responding";
+"Sul mio iPhone" = "On My iPhone";
+"già compresa in %@: puoi toglierla" = "already inside %@: you can remove it";

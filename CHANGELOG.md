@@ -1,5 +1,15 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.7
+- **Nomi giusti per le cartelle**: "File Provider Storage" ora si legge **Sul mio iPhone** (e la radice di iCloud
+  **iCloud Drive**); le sottocartelle dirette diventano "Sul mio iPhone → Downloads". Vale anche per la cartella
+  scritta sotto ogni file negli elenchi.
+- Se una cartella è già dentro un'altra dell'elenco (es. Downloads dentro Sul mio iPhone), sotto c'è scritto
+  "già compresa in …: puoi toglierla".
+
+*English*: readable folder names ("On My iPhone", "iCloud Drive", "On My iPhone → Downloads"), and a hint when a
+folder is already inside another one in the list.
+
 ## 1.8.6
 *Provata sull'iPhone: file tolti davvero (38,2 MB liberati), grassetto a posto.*
 
