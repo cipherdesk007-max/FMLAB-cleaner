@@ -7,6 +7,7 @@ struct PuliziaFotoApp: App {
     @StateObject private var libreria = Libreria()
     @StateObject private var aggiornamenti = Aggiornamenti()
     @StateObject private var spazio = SpazioLC()
+    @StateObject private var archivio = ArchivioFile()
 
     init() { Tema.applica() }
 
@@ -15,6 +16,9 @@ struct PuliziaFotoApp: App {
             TabView {
                 Principale()
                     .tabItem { Label("Pulizia", systemImage: "sparkles") }
+                NavigationView { SchedaFile() }
+                    .navigationViewStyle(.stack)
+                    .tabItem { Label(L("File"), systemImage: "folder") }
                 if SpazioLC.disponibile {
                     NavigationView { SchedaApp() }
                         .navigationViewStyle(.stack)
@@ -27,6 +31,7 @@ struct PuliziaFotoApp: App {
                 .environmentObject(libreria)
                 .environmentObject(aggiornamenti)
                 .environmentObject(spazio)
+                .environmentObject(archivio)
                 .task { await aggiornamenti.controlla() }
                 .task { if SpazioLC.disponibile { await spazio.analizza() } }
                 .tint(Tema.rosso)

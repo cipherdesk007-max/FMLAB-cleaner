@@ -1,5 +1,16 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.0
+- **Nuova scheda File**: pulisce anche l'app File (Download, Sul mio iPhone, iCloud Drive). Aggiungi una cartella
+  una volta (iOS vuole che sia tu a sceglierla) e l'app la analizza da sola ogni volta:
+  - **File grandi** (50 MB in su), **File doppi** (stesso contenuto, verificato con SHA-256: il più vecchio resta),
+    **Archivi e installazioni** (.ipa, .zip, .rar, .dmg...), **File vecchi** (più di 6 mesi);
+  - i file tolti vanno nel cestino dell'app File (recuperabili per 30 giorni). Funziona anche con i file rimasti
+    in "Errore" di caricamento su iCloud.
+
+*English*: new Files tab: add a folder once (Downloads, On My iPhone, iCloud Drive) and the app finds large files,
+SHA-256-verified duplicates, archives/installers and old files; removed files go to the Files trash (30 days).
+
 ## 1.7.0
 - **Analisi approfondita** (a richiesta, tutta sul telefono con Vision di Apple):
   - **Foto simili**: scatti quasi uguali a pochi secondi di distanza; in ogni gruppo resta la più nitida (e le
