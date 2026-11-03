@@ -104,7 +104,15 @@ struct Riepilogo: View {
     @Environment(\.openURL) var apri
     @State private var erroreCestino: String?
 
-    var recuperabile: Int64 { Categoria.allCases.reduce(0) { $0 + lib.peso($1) } }
+    /// Spazio liberabile senza contare due volte lo stesso elemento (un video puo' essere sia "grande" che
+    /// "doppione"): per ogni foto/video vale il risparmio piu' alto tra le categorie in cui compare.
+    var recuperabile: Int64 {
+        var migliore: [String: Int64] = [:]
+        for c in Categoria.allCases {
+            for e in lib.elementi(c) where !e.daTenere { migliore[e.id] = max(migliore[e.id] ?? 0, e.byte) }
+        }
+        return migliore.values.reduce(0, +)
+    }
 
     var body: some View {
         List {
@@ -356,6 +364,9 @@ struct Elenco: View {
             }
             .overlay(RoundedRectangle(cornerRadius: 2).stroke(scelto ? Color.red : Color.clear, lineWidth: 3))
             .contentShape(Rectangle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(e.asset.mediaType == .video ? L("Video, %@", formatoByte(e.byte)) : L("Foto, %@", formatoByte(e.byte))))
+            .accessibilityAddTraits(scelto ? [.isButton, .isSelected] : .isButton)
             .onTapGesture {
                 Vibrazione.tocco()
                 if scelto { scelti.remove(e.id) } else { scelti.insert(e.id) }

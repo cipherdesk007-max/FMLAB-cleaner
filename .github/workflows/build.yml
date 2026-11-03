@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Controlli (traduzioni e versione)
+        run: python3 strumenti/controlla_traduzioni.py
       - name: Theos, toolchain Swift per iOS e SDK
         run: |
           sudo apt-get update -qq

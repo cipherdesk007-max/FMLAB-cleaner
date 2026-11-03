@@ -39,6 +39,12 @@ documenti o dati delle app installate.
 **Cosa nessuna app per iPhone può fare** (e chi lo promette non fa niente di vero): liberare la RAM, chiudere le
 altre app, "riparare" la batteria, cancellare file di iOS o di app fuori da LiveContainer.
 
+## Privacy
+
+Le foto non escono mai dal telefono: l'analisi, la compressione e la conversione avvengono sull'iPhone.
+L'unica connessione è il controllo aggiornamenti, che legge un numero di versione da GitHub. Niente
+pubblicità, niente statistiche, niente account.
+
 ## Come è fatta
 
 - SwiftUI + PhotoKit, iOS 15 o successivo, italiano e inglese. Sorgenti in [`Sorgenti/`](Sorgenti/).

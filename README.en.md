@@ -37,6 +37,11 @@ documents or data of installed apps.
 **What no iPhone app can do** (apps that promise it do nothing real): free RAM, close other apps, "repair" the
 battery, delete iOS files or files of apps outside LiveContainer.
 
+## Privacy
+
+Photos never leave the phone: scanning, compression and conversion all run on the iPhone. The only network
+request is the update check, which reads a version number from GitHub. No ads, no analytics, no accounts.
+
 ## How it's built
 
 - SwiftUI + PhotoKit, iOS 15+, Italian and English. Sources in [`Sorgenti/`](Sorgenti/).

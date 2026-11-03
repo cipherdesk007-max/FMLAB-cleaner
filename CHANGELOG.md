@@ -1,5 +1,14 @@
 # Changelog — FMLAB Cleaner
 
+## 1.6.1
+- "Puoi liberare fino a" non conta più due volte lo stesso video (es. grande e doppione insieme).
+- Accessibilità: le miniature si leggono con VoiceOver ("Foto, 3 MB", selezionata o no).
+- Controllo automatico prima di ogni compilazione: file inglese scritto bene, nessun testo senza traduzione,
+  stessi segnaposto (%@, %lld) in italiano e inglese.
+
+*English*: no double counting in "You can free up to"; VoiceOver labels for thumbnails; pre-build check of the
+English strings (syntax, missing translations, matching placeholders).
+
 ## 1.6.0 — versione completa
 - **WhatsApp e Telegram puliti dentro l'app** quando sono installati in LiveContainer: l'app riconosce anche i
   loro contenitori condivisi (dove tengono quasi tutto) e con **Pulisci qui** toglie cache e, per Telegram, i
