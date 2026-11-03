@@ -1,6 +1,8 @@
 # Changelog — FMLAB Cleaner
 
 ## 1.8.6
+*Provata sull'iPhone: file tolti davvero (38,2 MB liberati), grassetto a posto.*
+
 - **Scheda File: "Sposta nel cestino" ora toglie davvero i file.** Dentro LiveContainer il coordinatore di file di
   iOS non rispondeva e i file restavano dov'erano senza nessun messaggio. Ora l'app prova prima direttamente
   (cestino di File, altrimenti eliminazione), e il coordinatore resta come ultima via con un limite di 8 secondi.
