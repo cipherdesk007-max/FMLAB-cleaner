@@ -42,6 +42,24 @@ documents or data of installed apps.
 **What no iPhone app can do** (apps that promise it do nothing real): free RAM, close other apps, "repair" the
 battery, delete iOS files or files of apps outside LiveContainer.
 
+## Made for LiveContainer
+
+FMLAB Cleaner is built to run inside **[LiveContainer](https://github.com/LiveContainer/LiveContainer)**
+(by [khanhduytran0](https://github.com/khanhduytran0) and contributors), installed with
+**[SideStore](https://github.com/SideStore/SideStore)**. It has features made for it: the **App** tab (space used by
+hosted apps, caches, leftover .ipa files, leftover app data shown with the real app name), the automatic
+*On My iPhone → LiveContainer* folder, and a **folder picker and file removal that work without changing
+LiveContainer's settings** (the same fix as "Fix File Picker", applied by the app itself).
+It also works as a normally installed app, without the App tab.
+
+**Where it can help** (LiveContainer and SideStore communities):
+- [r/sideloaded](https://www.reddit.com/r/sideloaded/) — SideStore + LiveContainer guides and help
+- [r/EmulationOniOS](https://www.reddit.com/r/EmulationOniOS/) — people running emulators and games in LiveContainer
+- [LiveContainer discussions on GitHub](https://github.com/LiveContainer/LiveContainer/discussions)
+- the SideStore Discord server (link on [sidestore.io](https://sidestore.io))
+
+Thanks to LiveContainer and SideStore: without them this app would have nowhere to run.
+
 ## Privacy
 
 Photos never leave the phone: scanning, compression and conversion all run on the iPhone. The only network
