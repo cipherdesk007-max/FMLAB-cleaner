@@ -1,5 +1,17 @@
 # Changelog — FMLAB Cleaner
 
+## 1.4.0
+- **Colori FMLAB**: rosso del logo su nero, logo nell'app.
+- **Aggiornamento senza file**: "Copia link di installazione" e in LiveContainer + → Installa dall'URL
+  (niente cartella Download su iCloud, che può dare "Errore").
+- **Live Photo → foto**: nuova categoria; il video di 3 secondi sparisce, la foto resta identica.
+- **Analisi molto più veloce dalla seconda volta**: i pesi già calcolati si ricordano, si rilegge solo il nuovo.
+- **In inglese** se l'iPhone è in inglese (italiano di base); vibrazione leggera alla selezione.
+
+*English*: FMLAB red/black theme with logo; update by copying the install link (LiveContainer → + → Install from URL,
+no iCloud Downloads errors); new Live Photo → still photo conversion; much faster re-scans thanks to a size cache;
+English localization; selection haptics.
+
 ## 1.3.1
 - Nuovo nome **FMLAB Cleaner** e repository dedicato: aggiornamenti, versioni e file .ipa sono qui.
 - Logo FMLAB come icona.

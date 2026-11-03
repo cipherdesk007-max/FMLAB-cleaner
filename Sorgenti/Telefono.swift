@@ -49,11 +49,11 @@ final class StatoTelefono: ObservableObject {
 
     var testoTermico: (String, Color) {
         switch termico {
-        case .nominal: return ("Normale", .green)
-        case .fair: return ("Tiepido", .yellow)
-        case .serious: return ("Caldo: iOS sta già rallentando", .orange)
-        case .critical: return ("Molto caldo: lascialo riposare", .red)
-        @unknown default: return ("Sconosciuto", .gray)
+        case .nominal: return (L("Normale"), .green)
+        case .fair: return (L("Tiepido"), .yellow)
+        case .serious: return (L("Caldo: iOS sta già rallentando"), .orange)
+        case .critical: return (L("Molto caldo: lascialo riposare"), .red)
+        @unknown default: return (L("Sconosciuto"), .gray)
         }
     }
 
@@ -64,21 +64,21 @@ final class StatoTelefono: ObservableObject {
         var c: [(String, String)] = []
         let percLibero = totale > 0 ? Double(libero) / Double(totale) : 1
         if percLibero < 0.10 {
-            c.append(("internaldrive", "Spazio quasi finito (\(formatoByte(libero)) liberi): un iPhone pieno rallenta tutto e scalda di più. Inizia da \"Video grandi\" qui sopra, poi Impostazioni → Generali → Spazio iPhone."))
+            c.append(("internaldrive", L("Spazio quasi finito (%@ liberi): un iPhone pieno rallenta tutto e scalda di più. Inizia da \"Video grandi\" qui sopra, poi Impostazioni → Generali → Spazio iPhone.", formatoByte(libero))))
         }
         if termico == .serious || termico == .critical {
-            c.append(("thermometer.sun", "Il telefono è caldo: iOS abbassa da solo la velocità per proteggerlo. Togli la custodia se sta caricando, chiudi giochi e Linux pesanti, evita il sole diretto."))
+            c.append(("thermometer.sun", L("Il telefono è caldo: iOS abbassa da solo la velocità per proteggerlo. Togli la custodia se sta caricando, chiudi giochi e Linux pesanti, evita il sole diretto.")))
         }
         if giorniAcceso >= 7 {
-            c.append(("arrow.clockwise", "Acceso da \(giorniAcceso) giorni: un riavvio ogni tanto libera la memoria e chiude i processi rimasti appesi."))
+            c.append(("arrow.clockwise", L("Acceso da %lld giorni: un riavvio ogni tanto libera la memoria e chiude i processi rimasti appesi.", giorniAcceso)))
         }
         if batteria >= 0 && batteria < 0.2 && !risparmio {
-            c.append(("battery.25", "Batteria sotto il 20%: attiva Risparmio energetico (Centro di Controllo)."))
+            c.append(("battery.25", L("Batteria sotto il 20%: attiva Risparmio energetico (Centro di Controllo).")))
         }
-        c.append(("battery.100.bolt", "Batteria: Impostazioni → Batteria → Ricarica → Ricarica ottimizzata (o limite all'80%) fa durare di più la batteria negli anni."))
-        c.append(("sun.max", "Luminosità automatica e modalità scura consumano meno schermo, la parte che usa più batteria."))
-        c.append(("arrow.triangle.2.circlepath", "Aggiornamento app in background: spegnilo per le app che non ne hanno bisogno (Impostazioni → Generali)."))
-        c.append(("location", "Localizzazione: \"Mentre usi l'app\" invece di \"Sempre\" per le app che non servono in sottofondo."))
+        c.append(("battery.100.bolt", L("Batteria: Impostazioni → Batteria → Ricarica → Ricarica ottimizzata (o limite all'80%) fa durare di più la batteria negli anni.")))
+        c.append(("sun.max", L("Luminosità automatica e modalità scura consumano meno schermo, la parte che usa più batteria.")))
+        c.append(("arrow.triangle.2.circlepath", L("Aggiornamento app in background: spegnilo per le app che non ne hanno bisogno (Impostazioni → Generali).")))
+        c.append(("location", L("Localizzazione: \"Mentre usi l'app\" invece di \"Sempre\" per le app che non servono in sottofondo.")))
         return c
     }
 }
@@ -89,19 +89,19 @@ struct Telefono: View {
     var body: some View {
         List {
             Section("Adesso") {
-                riga("bolt.batteryblock", "Batteria",
-                     s.batteria < 0 ? "—" : "\(Int(s.batteria * 100))%" + (s.carica == .charging ? " · in carica" : s.carica == .full ? " · carica" : ""))
-                riga("leaf", "Risparmio energetico", s.risparmio ? "acceso" : "spento")
+                riga("bolt.batteryblock", L("Batteria"),
+                     s.batteria < 0 ? "—" : "\(Int(s.batteria * 100))%" + (s.carica == .charging ? L(" · in carica") : s.carica == .full ? L(" · carica") : ""))
+                riga("leaf", L("Risparmio energetico"), s.risparmio ? L("acceso") : L("spento"))
                 HStack {
                     Label("Temperatura", systemImage: "thermometer")
                     Spacer()
                     Text(s.testoTermico.0).foregroundColor(s.testoTermico.1).bold()
                 }
-                riga("internaldrive", "Spazio libero",
-                     "\(formatoByte(s.libero)) su \(formatoByte(s.totale))")
-                riga("memorychip", "Memoria (RAM)", formatoByte(Int64(s.ram)))
-                riga("clock.arrow.circlepath", "Acceso da",
-                     s.giorniAcceso > 0 ? "\(s.giorniAcceso) giorni" : "\(Int(s.acceso / 3600)) ore")
+                riga("internaldrive", L("Spazio libero"),
+                     L("%@ su %@", formatoByte(s.libero), formatoByte(s.totale)))
+                riga("memorychip", L("Memoria (RAM)"), formatoByte(Int64(s.ram)))
+                riga("clock.arrow.circlepath", L("Acceso da"),
+                     s.giorniAcceso > 0 ? L("%lld giorni", s.giorniAcceso) : L("%lld ore", Int(s.acceso / 3600)))
             }
             Section {
                 ForEach(Array(s.consigli.enumerated()), id: \.offset) { _, c in

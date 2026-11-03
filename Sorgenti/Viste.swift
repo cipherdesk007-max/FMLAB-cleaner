@@ -7,6 +7,8 @@ struct PuliziaFotoApp: App {
     @StateObject private var libreria = Libreria()
     @StateObject private var aggiornamenti = Aggiornamenti()
 
+    init() { Tema.applica() }
+
     var body: some Scene {
         WindowGroup {
             TabView {
@@ -24,7 +26,9 @@ struct PuliziaFotoApp: App {
                 .environmentObject(libreria)
                 .environmentObject(aggiornamenti)
                 .task { await aggiornamenti.controlla() }
-                .tint(Color(red: 0.49, green: 0.23, blue: 0.93))
+                .tint(Tema.rosso)
+                .accentColor(Tema.rosso)
+                .preferredColorScheme(.dark)
         }
     }
 }
@@ -57,7 +61,7 @@ struct Permesso: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            Image(systemName: "photo.on.rectangle.angled").font(.system(size: 56)).foregroundColor(.accentColor)
+            Logo(lato: 110)
             Text("Trova video grandi, doppioni e screenshot da togliere.")
                 .font(.title3.weight(.semibold)).multilineTextAlignment(.center)
             Text("Tutto resta sul telefono: niente internet, niente abbonamenti. Non cancello niente da sola: scegli tu, iOS chiede conferma e le foto finiscono in \"Eliminati di recente\" per 30 giorni.")
@@ -108,7 +112,7 @@ struct Riepilogo: View {
                         .foregroundColor(.secondary)
                     if recuperabile > 0 {
                         Text("Puoi liberare fino a \(formatoByte(recuperabile))")
-                            .font(.headline).foregroundColor(.accentColor)
+                            .font(.headline).foregroundColor(Tema.rosso)
                     }
                     if lib.liberato > 0 {
                         Text("Già tolti: \(formatoByte(lib.liberato)) — svuota \"Eliminati di recente\" in Foto per avere lo spazio subito.")
@@ -145,7 +149,7 @@ struct Riepilogo: View {
                 ForEach(Categoria.allCases) { c in
                     NavigationLink(destination: Elenco(categoria: c)) {
                         HStack {
-                            Image(systemName: c.icona).frame(width: 28).foregroundColor(.accentColor)
+                            Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
                             VStack(alignment: .leading) {
                                 Text(c.titolo)
                                 Text("\(lib.elementi(c).filter { !$0.daTenere }.count) elementi")
@@ -161,7 +165,7 @@ struct Riepilogo: View {
             Section {
                 Text("Doppioni anche dall'app Foto: Raccolte → Utility → Duplicati → Unisci.")
                 Text("Spazio dell'aggiornamento iOS e delle app: Impostazioni → Generali → Spazio iPhone.")
-                Button(agg.controllo ? "Controllo…" : "Controlla aggiornamenti di FMLAB Cleaner") {
+                Button(agg.controllo ? L("Controllo…") : L("Controlla aggiornamenti di FMLAB Cleaner")) {
                     Task { await agg.controlla(manuale: true) }
                 }.disabled(agg.controllo)
                 if let e = agg.esito { Text(e).foregroundColor(.secondary) }
@@ -184,13 +188,16 @@ struct Riepilogo: View {
         } message: { Text("Non si potranno più recuperare. iOS chiederà ancora conferma.") }
         .alert("Non riuscito", isPresented: Binding(get: { erroreCestino != nil }, set: { if !$0 { erroreCestino = nil } })) {
             Button("OK", role: .cancel) {}
-        } message: { Text((erroreCestino ?? "") + "\n\nIn alternativa: Foto → Eliminati di recente → Seleziona → Elimina tutto.") }
+        } message: { Text((erroreCestino ?? "") + "\n\n" + L("In alternativa: Foto → Eliminati di recente → Seleziona → Elimina tutto.")) }
         .overlay(alignment: .top) {
             if lib.analisiInCorso { ProgressView(value: lib.progresso).padding(.horizontal) }
         }
         .toolbar {
-            Button { Task { await lib.analizza() } } label: { Image(systemName: "arrow.clockwise") }
-                .disabled(lib.analisiInCorso)
+            ToolbarItem(placement: .navigationBarLeading) { Logo(lato: 30) }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button { Task { await lib.analizza() } } label: { Image(systemName: "arrow.clockwise") }
+                    .disabled(lib.analisiInCorso)
+            }
         }
     }
 }
@@ -206,6 +213,7 @@ struct Elenco: View {
     @State private var errore: String?
     @State private var anteprima: Elemento?
     @State private var comprimi = false
+    @State private var lavoro: Lavoro = .comprimi
 
     var elementi: [Elemento] { lib.elementi(categoria) }
     var sceltiElementi: [Elemento] { elementi.filter { scelti.contains($0.id) } }
@@ -248,28 +256,41 @@ struct Elenco: View {
             HStack(spacing: 10) {
                 if categoria == .videoGrandi && !scelti.isEmpty {
                     Button {
-                        comprimi = true
+                        lavoro = .comprimi; comprimi = true
                     } label: {
                         Text("Comprimi · ~\(formatoByte(pesoScelti / 2))")
                             .frame(maxWidth: .infinity).padding(.vertical, 6)
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                Button {
+                if categoria == .live && !scelti.isEmpty {
+                    Button {
+                        lavoro = .soloFoto; comprimi = true
+                    } label: {
+                        Text("Trasforma in foto · \(formatoByte(pesoScelti))")
+                            .frame(maxWidth: .infinity).padding(.vertical, 6)
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                if categoria != .live { Button {
                     conferma = true
                 } label: {
-                    Text(scelti.isEmpty ? (categoria == .videoGrandi ? "Tocca i video da togliere o comprimere" : "Tocca le foto da togliere")
-                         : "Togli \(scelti.count) · \(formatoByte(pesoScelti))")
+                    Text(scelti.isEmpty ? (categoria == .videoGrandi ? L("Tocca i video da togliere o comprimere") : L("Tocca le foto da togliere"))
+                         : L("Togli %lld · %@", scelti.count, formatoByte(pesoScelti)))
                         .frame(maxWidth: .infinity).padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent).tint(scelti.isEmpty ? .gray : .red)
-                .disabled(scelti.isEmpty)
+                .disabled(scelti.isEmpty) }
+                if categoria == .live && scelti.isEmpty {
+                    Text("Tocca le Live Photo da trasformare (o ✓ in alto: tutte)")
+                        .frame(maxWidth: .infinity).foregroundColor(.secondary).padding(.vertical, 6)
+                }
             }
             .padding()
             .background(.ultraThinMaterial)
             // (foglio agganciato qui: due .sheet sulla stessa vista non funzionano su iOS 15)
             .sheet(isPresented: $comprimi, onDismiss: { scelti = [] }) {
-                Compressione(elementi: sceltiElementi).environmentObject(lib)
+                Compressione(elementi: sceltiElementi, lavoro: lavoro).environmentObject(lib)
             }
         }
         .confirmationDialog("Togliere \(scelti.count) elementi (\(formatoByte(pesoScelti)))?",
@@ -318,6 +339,7 @@ struct Elenco: View {
             .overlay(RoundedRectangle(cornerRadius: 2).stroke(scelto ? Color.red : Color.clear, lineWidth: 3))
             .contentShape(Rectangle())
             .onTapGesture {
+                Vibrazione.tocco()
                 if scelto { scelti.remove(e.id) } else { scelti.insert(e.id) }
             }
             .onLongPressGesture { anteprima = e }

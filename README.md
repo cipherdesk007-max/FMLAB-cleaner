@@ -1,5 +1,7 @@
 # FMLAB Cleaner 🧹📱
 
+🇮🇹 Italiano · [🇬🇧 English](README.en.md)
+
 <p align="center"><img src="Risorse/logo-256.png" width="140" alt="Logo FMLAB"></p>
 
 **FMLAB Cleaner** è un'app per iPhone che libera spazio in sicurezza e mostra lo stato vero del telefono.
@@ -12,18 +14,21 @@ Tutto resta sul telefono: niente internet (tranne il controllo aggiornamenti), n
 
 ## Installazione
 
-1. Dall'iPhone scarica **[FMLAB-Cleaner.ipa](https://github.com/cipherdesk007-max/FMLAB-cleaner/releases/download/ultima/FMLAB-Cleaner.ipa)**.
-2. Apri **LiveContainer** → **+** in alto a destra → scegli il file.
-3. Al primo avvio consenti l'accesso a **Tutte le foto** (la richiesta compare a nome di LiveContainer).
+1. Apri **LiveContainer** → **+** → **Installa dall'URL** e incolla:
+   `https://github.com/cipherdesk007-max/FMLAB-cleaner/releases/download/ultima/FMLAB-Cleaner.ipa`
+2. Al primo avvio consenti l'accesso a **Tutte le foto** (la richiesta compare a nome di LiveContainer).
 
-Gli aggiornamenti li segnala l'app stessa: un tocco scarica il file nuovo, che si installa sopra il vecchio
-allo stesso modo (i dati restano). Funziona anche con SideStore/AltStore come app normale.
+Oppure scarica [il file .ipa](https://github.com/cipherdesk007-max/FMLAB-cleaner/releases/download/ultima/FMLAB-Cleaner.ipa)
+e installalo con **+ → Installa da IPA** (se la cartella Download è su iCloud e dà "Errore", usa il link).
+
+Gli aggiornamenti li segnala l'app stessa: **Copia link di installazione**, poi in LiveContainer + → Installa
+dall'URL → Incolla. Si installa sopra la versione vecchia e i dati restano. Funziona anche con SideStore/AltStore.
 
 ## Cosa fa
 
 | Scheda | Cosa fa |
 |---|---|
-| **Pulizia** | Video grandi (dal più pesante, da togliere o **comprimere** a metà peso), doppioni identici (l'originale resta), registrazioni dello schermo, screenshot, scatti a raffica non scelti. **Svuota "Eliminati di recente"** tutto in una volta |
+| **Pulizia** | Video grandi (dal più pesante, da togliere o **comprimere** a metà peso), **Live Photo → foto** (via il video di 3 secondi), doppioni identici (l'originale resta), registrazioni dello schermo, screenshot, scatti a raffica non scelti. **Svuota "Eliminati di recente"** tutto in una volta |
 | **App** | Solo dentro LiveContainer: quanto occupa ogni app ospitata, svuota cache e file temporanei, toglie i file .ipa rimasti e i dati di app già disinstallate |
 | **Telefono** | Batteria, risparmio energetico, temperatura come la comunica iOS, spazio, memoria, da quanto è acceso, consigli in ordine di effetto |
 
@@ -36,7 +41,8 @@ altre app, "riparare" la batteria, cancellare file di iOS o di app fuori da Live
 
 ## Come è fatta
 
-- SwiftUI + PhotoKit, iOS 15 o successivo. Sorgenti in [`Sorgenti/`](Sorgenti/).
+- SwiftUI + PhotoKit, iOS 15 o successivo, italiano e inglese. Sorgenti in [`Sorgenti/`](Sorgenti/).
+- Colori FMLAB: rosso `#BF6D6F` (dal logo) su nero.
 - Compilata da GitHub Actions su Linux con [Theos](https://github.com/theos/theos) (nessun Mac necessario):
   a ogni modifica su `main` esce una versione numerata e la pubblicazione **ultima**, da cui l'app si aggiorna.
 - `project.yml` serve per aprirla in Xcode con XcodeGen, se un giorno si usa un Mac.

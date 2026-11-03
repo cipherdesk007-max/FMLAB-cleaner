@@ -3,6 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key><string>it</string>
+	<key>CFBundleLocalizations</key><array><string>it</string><string>en</string></array>
 	<key>CFBundleExecutable</key><string>PuliziaFoto</string>
 	<key>CFBundleIdentifier</key><string>com.fmlab.puliziafoto</string>
 	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>

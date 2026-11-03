@@ -6,23 +6,25 @@ import Photos
 import SwiftUI
 
 enum Categoria: String, CaseIterable, Identifiable {
-    case videoGrandi, doppioni, registrazioni, screenshot, raffiche
+    case videoGrandi, live, doppioni, registrazioni, screenshot, raffiche
 
     var id: String { rawValue }
 
     var titolo: String {
         switch self {
-        case .videoGrandi: return "Video grandi"
-        case .doppioni: return "Doppioni"
-        case .registrazioni: return "Registrazioni dello schermo"
-        case .screenshot: return "Screenshot"
-        case .raffiche: return "Scatti a raffica in più"
+        case .videoGrandi: return L("Video grandi")
+        case .live: return L("Live Photo")
+        case .doppioni: return L("Doppioni")
+        case .registrazioni: return L("Registrazioni dello schermo")
+        case .screenshot: return L("Screenshot")
+        case .raffiche: return L("Scatti a raffica in più")
         }
     }
 
     var icona: String {
         switch self {
         case .videoGrandi: return "film"
+        case .live: return "livephoto"
         case .doppioni: return "square.on.square"
         case .registrazioni: return "record.circle"
         case .screenshot: return "camera.viewfinder"
@@ -33,15 +35,17 @@ enum Categoria: String, CaseIterable, Identifiable {
     var spiegazione: String {
         switch self {
         case .videoGrandi:
-            return "I video da 50 MB in su, dal più pesante. Puoi toglierli oppure comprimerli: restano uguali sul telefono e pesano circa la metà."
+            return L("I video da 50 MB in su, dal più pesante. Puoi toglierli oppure comprimerli: restano uguali sul telefono e pesano circa la metà.")
+        case .live:
+            return L("Ogni Live Photo contiene anche un piccolo video. Trasformandola in foto normale il video sparisce e la foto resta identica. Il peso indicato è quello che risparmi.")
         case .doppioni:
-            return "Foto e video identici (stesse dimensioni e stesso peso). Il più vecchio di ogni gruppo resta: gli altri sono già selezionati."
+            return L("Foto e video identici (stesse dimensioni e stesso peso). Il più vecchio di ogni gruppo resta: gli altri sono già selezionati.")
         case .registrazioni:
-            return "Le registrazioni dello schermo: di solito servono una volta sola."
+            return L("Le registrazioni dello schermo: di solito servono una volta sola.")
         case .screenshot:
-            return "Tutti gli screenshot, dal più vecchio."
+            return L("Tutti gli screenshot, dal più vecchio.")
         case .raffiche:
-            return "Gli scatti di una raffica che non hai scelto come preferiti. Quello principale resta."
+            return L("Gli scatti di una raffica che non hai scelto come preferiti. Quello principale resta.")
         }
     }
 
@@ -75,8 +79,39 @@ func formatoByte(_ b: Int64) -> String {
     return f.string(fromByteCount: b)
 }
 
+/// Memoria dei pesi gia' calcolati: chiedere a iOS il peso di migliaia di foto e' la parte lenta
+/// dell'analisi. Si ricalcola solo cio' che e' nuovo o modificato.
+struct VoceCache: Codable { var b: Int64; var v: Int64; var r: Bool; var m: Double }
+
+enum CachePesi {
+    static var file: URL {
+        let d = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
+        return d.appendingPathComponent("pesi.json")
+    }
+    static func carica() -> [String: VoceCache] {
+        guard let d = try? Data(contentsOf: file) else { return [:] }
+        return (try? JSONDecoder().decode([String: VoceCache].self, from: d)) ?? [:]
+    }
+    static func salva(_ c: [String: VoceCache]) {
+        if let d = try? JSONEncoder().encode(c) { try? d.write(to: file, options: .atomic) }
+    }
+}
+
 enum Analizzatore {
     static let sogliaVideo: Int64 = 50 * 1024 * 1024
+
+    /// Peso totale, peso del video di una Live Photo e "e' una registrazione dello schermo" in una sola lettura.
+    static func misura(_ a: PHAsset) -> VoceCache {
+        var b: Int64 = 0, v: Int64 = 0, reg = a.mediaSubtypes.contains(PHAssetMediaSubtype(rawValue: 1 << 15))
+        for r in PHAssetResource.assetResources(for: a) {
+            let x = (r.value(forKey: "fileSize") as? NSNumber)?.int64Value ?? 0
+            b += x
+            if r.type == .pairedVideo || r.type == .fullSizePairedVideo { v += x }
+            if a.mediaType == .video && r.originalFilename.hasPrefix("RPReplay") { reg = true }
+        }
+        return VoceCache(b: b, v: v, r: reg, m: a.modificationDate?.timeIntervalSince1970 ?? 0)
+    }
 
     /// Peso di un elemento: somma delle sue risorse (una Live Photo ha foto + video).
     /// Per le foto ottimizzate su iCloud e' il peso dell'originale.
@@ -104,15 +139,23 @@ enum Analizzatore {
         var screenshot: [Elemento] = []
         var raffiche: [Elemento] = []
         var perChiave: [String: [Elemento]] = [:]
+        var live: [Elemento] = []
+        let vecchia = CachePesi.carica()
+        var nuova: [String: VoceCache] = [:]
+        nuova.reserveCapacity(n)
 
         for i in 0..<n {
             let a = tutti.object(at: i)
-            let b = peso(a)
+            let mod = a.modificationDate?.timeIntervalSince1970 ?? 0
+            var c = vecchia[a.localIdentifier]
+            if c == nil || c!.m != mod || c!.b == 0 { c = misura(a) }
+            nuova[a.localIdentifier] = c!
+            let b = c!.b
             ris.totale += b
             let e = Elemento(asset: a, byte: b, gruppo: 0, daTenere: false)
             if a.mediaType == .video {
                 ris.video += 1
-                if registrazione(a) {
+                if c!.r {
                     registrazioni.append(e)
                 } else if b >= sogliaVideo {
                     video.append(e)
@@ -120,6 +163,9 @@ enum Analizzatore {
             } else if a.mediaType == .image {
                 ris.foto += 1
                 if a.mediaSubtypes.contains(.photoScreenshot) { screenshot.append(e) }
+                if a.mediaSubtypes.contains(.photoLive) && c!.v > 0 {
+                    live.append(Elemento(asset: a, byte: c!.v, gruppo: 0, daTenere: false))
+                }
                 if a.representsBurst, let id = a.burstIdentifier {
                     raffiche.append(contentsOf: scartiRaffica(id, principale: a))
                 }
@@ -157,6 +203,8 @@ enum Analizzatore {
         ris.categorie[.registrazioni] = registrazioni.sorted { $0.byte > $1.byte }
         ris.categorie[.screenshot] = screenshot
         ris.categorie[.raffiche] = raffiche
+        ris.categorie[.live] = live.sorted { $0.byte > $1.byte }
+        CachePesi.salva(nuova)
         progresso(1)
         return ris
     }

@@ -1,8 +1,9 @@
 // Controlla su GitHub se c'e' una versione nuova di FMLAB Cleaner (pubblicata solo se compilata
-// senza errori). Se c'e', un tocco apre il download del file .ipa: in LiveContainer si
-// installa sopra la vecchia (+ in alto a destra -> il file scaricato) e i dati restano.
+// senza errori). Per installarla non serve scaricare file (la cartella Download su iCloud puo' dare
+// errore): si copia il link e LiveContainer lo installa da solo con "+ -> Installa dall'URL".
 import Foundation
 import SwiftUI
+import UIKit
 
 @MainActor
 final class Aggiornamenti: ObservableObject {
@@ -27,7 +28,7 @@ final class Aggiornamenti: ObservableObject {
               (risposta as? HTTPURLResponse)?.statusCode == 200,
               let v = String(data: dati, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
               v.range(of: #"^\d+\.\d+\.\d+$"#, options: .regularExpression) != nil else {
-            if manuale { esito = "Nessuna connessione con GitHub: riprova più tardi." }
+            if manuale { esito = L("Nessuna connessione con GitHub: riprova più tardi.") }
             return
         }
         if Self.piuNuova(v, di: attuale) {
@@ -35,7 +36,7 @@ final class Aggiornamenti: ObservableObject {
             esito = nil
         } else {
             nuova = nil
-            if manuale { esito = "Sei già all'ultima versione (\(attuale))." }
+            if manuale { esito = L("Sei già all'ultima versione (%@).", attuale) }
         }
     }
 
@@ -52,18 +53,33 @@ final class Aggiornamenti: ObservableObject {
 struct AvvisoAggiornamento: View {
     @ObservedObject var agg: Aggiornamenti
     @Environment(\.openURL) var apri
+    @State private var copiato = false
 
     var body: some View {
         if let v = agg.nuova {
-            Button {
-                apri(Aggiornamenti.urlIpa)
-            } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Label("Versione \(v) disponibile", systemImage: "arrow.down.circle.fill").font(.headline)
-                    Text("Tocca per scaricarla, poi in LiveContainer: + in alto a destra → il file scaricato.")
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Versione \(v) disponibile", systemImage: "arrow.down.circle.fill").font(.headline)
+                if copiato {
+                    Text("Link copiato. Ora: chiudi FMLAB Cleaner, in LiveContainer tocca + → Installa dall'URL → Incolla → OK. Si installa sopra questa, i dati restano.")
+                        .font(.callout)
+                } else {
+                    Text("Senza scaricare file: copia il link e installalo da LiveContainer (+ → Installa dall'URL).")
                         .font(.footnote).foregroundColor(.secondary)
                 }
+                Button {
+                    UIPasteboard.general.string = Aggiornamenti.urlIpa.absoluteString
+                    Vibrazione.fatto()
+                    copiato = true
+                } label: {
+                    Label(copiato ? L("Link copiato") : L("Copia link di installazione"),
+                          systemImage: copiato ? "checkmark" : "doc.on.doc")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                Button("Oppure scarica il file .ipa") { apri(Aggiornamenti.urlIpa) }
+                    .font(.footnote)
             }
+            .padding(.vertical, 4)
         }
     }
 }
