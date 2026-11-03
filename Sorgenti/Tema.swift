@@ -57,3 +57,11 @@ func L(_ s: String, _ v: CVarArg...) -> String { String(format: NSLocalizedStrin
 
 /// "1 elemento" / "5 elementi"
 func contaElementi(_ n: Int) -> String { n == 1 ? L("1 elemento") : L("%lld elementi", n) }
+/// "1 file" / "5 file" (in inglese "1 file" / "5 files")
+func contaFile(_ n: Int) -> String { n == 1 ? L("1 file") : L("%lld file", n) }
+
+/// Testo con **grassetto**: Text(String) mostrerebbe gli asterischi cosi' come sono.
+func TestoMd(_ s: String) -> Text {
+    if let a = try? AttributedString(markdown: s) { return Text(a) }
+    return Text(s)
+}

@@ -193,7 +193,7 @@ struct Riepilogo: View {
             Section {
                 if let c = lib.cestino {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Eliminati di recente: \(c.numero) elementi · \(formatoByte(c.byte))", systemImage: "trash")
+                        Label(L("Eliminati di recente: %@ · %@", contaElementi(c.numero), formatoByte(c.byte)), systemImage: "trash")
                             .font(.headline)
                         Text("Occupano ancora spazio finché non svuoti il cestino (iOS li tiene 30 giorni).")
                             .font(.footnote).foregroundColor(.secondary)
@@ -244,7 +244,7 @@ struct Riepilogo: View {
             .font(.footnote)
         }
         .refreshable { await lib.analizza() }
-        .confirmationDialog("Cancellare per sempre \(lib.cestino?.numero ?? 0) elementi (\(formatoByte(lib.cestino?.byte ?? 0)))?",
+        .confirmationDialog(L("Cancellare per sempre %@ (%@)?", contaElementi(lib.cestino?.numero ?? 0), formatoByte(lib.cestino?.byte ?? 0)),
                             isPresented: $svuota, titleVisibility: .visible) {
             Button("Svuota Eliminati di recente", role: .destructive) {
                 Task {
@@ -362,7 +362,7 @@ struct Elenco: View {
                 Compressione(elementi: sceltiElementi, tipo: lavoro).environmentObject(lib)
             }
         }
-        .confirmationDialog("Togliere \(scelti.count) elementi (\(formatoByte(pesoScelti)))?",
+        .confirmationDialog(L("Togliere %@ (%@)?", contaElementi(scelti.count), formatoByte(pesoScelti)),
                             isPresented: $conferma, titleVisibility: .visible) {
             Button("Sposta in Eliminati di recente", role: .destructive) { Task { await togli() } }
         } message: {

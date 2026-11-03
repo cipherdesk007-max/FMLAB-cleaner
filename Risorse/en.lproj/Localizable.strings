@@ -23,7 +23,6 @@
 "Batteria sotto il 20%: attiva Risparmio energetico (Centro di Controllo)." = "Battery below 20%: turn on Low Power Mode (Control Center).";
 "Batteria: Impostazioni → Batteria → Ricarica → Ricarica ottimizzata (o limite all'80%) fa durare di più la batteria negli anni." = "Battery: Settings → Battery → Charging → Optimized Charging (or the 80% limit) makes the battery last longer over the years.";
 "Caldo: iOS sta già rallentando" = "Hot: iOS is already slowing down";
-"Cancellare per sempre %lld elementi (%@)?" = "Permanently delete %lld items (%@)?";
 "Cartelle di dati che nessuna app installata usa più. Controlla il nome prima di toglierle: se reinstalli l'app, i suoi dati vecchi non ci saranno." = "Data folders no installed app uses anymore. Check the name before removing: if you reinstall the app, its old data will be gone.";
 "Chiudi" = "Close";
 "Compressione non riuscita: %@" = "Compression failed: %@";
@@ -41,7 +40,6 @@
 "Deseleziona tutto" = "Deselect all";
 "Doppioni" = "Duplicates";
 "Doppioni anche dall'app Foto: Raccolte → Utility → Duplicati → Unisci." = "Duplicates in the Photos app too: Collections → Utilities → Duplicates → Merge.";
-"Eliminati di recente: %lld elementi · %@" = "Recently Deleted: %lld items · %@";
 "Fatto. Gli originali sono in \"Eliminati di recente\": svuotalo per avere lo spazio." = "Done. The originals are in \"Recently Deleted\": empty it to get the space.";
 "Ferma" = "Stop";
 "File di installazione rimasti" = "Leftover install files";
@@ -111,7 +109,6 @@
 "Togli %@" = "Remove %@";
 "Togli %lld · %@" = "Remove %lld · %@";
 "Togliere %@?" = "Remove %@?";
-"Togliere %lld elementi (%@)?" = "Remove %lld items (%@)?";
 "Trasforma in foto · %@" = "Convert to photo · %@";
 "Trova video grandi, doppioni e screenshot da togliere." = "Find large videos, duplicates and screenshots to remove.";
 "Tutti gli screenshot, dal più vecchio." = "All screenshots, oldest first.";
@@ -201,7 +198,6 @@
 "solo su iCloud" = "iCloud only";
 "gruppo %lld" = "group %lld";
 "Tocca i file da togliere" = "Tap the files to remove";
-"Togliere %lld file (%@)?" = "Remove %lld files (%@)?";
 "Sposta nel cestino di File" = "Move to the Files trash";
 "Li ritrovi in File → Eliminati di recente per 30 giorni." = "You'll find them in Files → Recently Deleted for 30 days.";
 "Sul mio iPhone → LiveContainer (automatica)" = "On My iPhone → LiveContainer (automatic)";
@@ -214,3 +210,9 @@
 "È arrivata una copia, non la cartella vera. In LiveContainer tieni premuto FMLAB Cleaner → Impostazioni e spegni \"Sistema Selettore File (Legacy)\", poi riprova." = "A copy arrived, not the real folder. In LiveContainer long-press FMLAB Cleaner → Settings and turn off \"(Legacy) Fix File Picker\", then try again.";
 "Cartella aggiunta, ma iOS non la lascia ricordare: dopo aver chiuso l'app andrà aggiunta di nuovo." = "Folder added, but iOS won't let me remember it: after closing the app you'll need to add it again.";
 "Se dopo \"Apri\" la rotella gira e basta: in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → accendi \"Ripara Selettore File\"." = "If the spinner keeps turning after \"Open\": in LiveContainer long-press FMLAB Cleaner → Settings → turn on \"Fix File Picker\".";
+"Eliminati di recente: %@ · %@" = "Recently Deleted: %@ · %@";
+"Cancellare per sempre %@ (%@)?" = "Permanently delete %@ (%@)?";
+"Togliere %@ (%@)?" = "Remove %@ (%@)?";
+"1 file" = "1 file";
+"%lld file" = "%lld files";
+"1 ora" = "1 hour";

@@ -274,7 +274,7 @@ struct SchedaFile: View {
                         .swipeActions { Button(L("Togli"), role: .destructive) { archivio.togliCartella(c) } }
                 }
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
-                Text(L("Nel selettore: tocca **Seleziona** in alto, spunta la cartella (es. Download) e tocca **Apri**."))
+                TestoMd(L("Nel selettore: tocca **Seleziona** in alto, spunta la cartella (es. Download) e tocca **Apri**."))
                     .font(.caption).foregroundColor(.secondary)
                 if RiparaSelettore.dentroLiveContainer && !RiparaSelettore.attiva {
                     Text(L("Se dopo \"Apri\" la rotella gira e basta: in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → accendi \"Ripara Selettore File\"."))
@@ -381,7 +381,7 @@ struct ElencoFile: View {
             .disabled(scelti.isEmpty)
             .padding().background(.ultraThinMaterial)
         }
-        .confirmationDialog(L("Togliere %lld file (%@)?", scelti.count, formatoByte(peso)), isPresented: $conferma, titleVisibility: .visible) {
+        .confirmationDialog(L("Togliere %@ (%@)?", contaFile(scelti.count), formatoByte(peso)), isPresented: $conferma, titleVisibility: .visible) {
             Button(L("Sposta nel cestino di File"), role: .destructive) {
                 let lista = sceltiFile
                 Task { _ = await archivio.togli(lista); scelti = []; Vibrazione.fatto() }

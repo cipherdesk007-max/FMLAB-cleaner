@@ -1,5 +1,14 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.4
+- **Difetti estetici corretti**:
+  - sotto "Aggiungi una cartella" si vedevano gli asterischi (`**Seleziona**`, `**Apri**`): ora sono in grassetto;
+  - niente più "1 elementi": il cestino di Foto e le richieste di conferma ("Togliere…", "Cancellare per sempre…")
+    usano il singolare quando l'elemento è uno solo;
+  - "Acceso da" mostra "1 ora" invece di "1 ore"; in inglese "1 file" invece di "1 files".
+
+*English*: cosmetic fixes: bold text instead of visible asterisks, correct singular forms ("1 item", "1 hour", "1 file").
+
 ## 1.8.3
 *Provata sull'iPhone: "Aggiungi una cartella" aggiunge Downloads e l'analisi parte subito.*
 
