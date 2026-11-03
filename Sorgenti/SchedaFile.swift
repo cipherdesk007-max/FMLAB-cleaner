@@ -48,18 +48,24 @@ enum TipoFile: String, CaseIterable, Identifiable {
 enum AnalisiFile {
     static let estensioniArchivi: Set<String> = ["ipa", "tipa", "zip", "rar", "7z", "dmg", "apk", "pkg", "tar", "gz", "xz", "iso"]
 
-    static func esegui(_ cartelle: [URL]) -> [TipoFile: [FileTrovato]] {
+    /// Cartelle interne di LiveContainer (app installate e loro dati): non sono file dell'utente
+    static let escluseLC: Set<String> = ["Applications", "Data", "Tweaks", "Frameworks", "TweakLoader", "Cache", "Caches"]
+
+    static func esegui(_ cartelle: [URL], automatica: URL? = nil) -> [TipoFile: [FileTrovato]] {
         let fm = FileManager.default
         let chiavi: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey, .totalFileAllocatedSizeKey,
                                         .contentModificationDateKey, .ubiquitousItemDownloadingStatusKey]
         var tutti: [FileTrovato] = []
         var visti = Set<String>()
-        for c in cartelle {
+        for c in cartelle + [automatica].compactMap({ $0 }) {
             let aperta = c.startAccessingSecurityScopedResource()
             defer { if aperta { c.stopAccessingSecurityScopedResource() } }
             guard let e = fm.enumerator(at: c, includingPropertiesForKeys: chiavi, options: [.skipsPackageDescendants],
                                         errorHandler: { _, _ in true }) else { continue }
             for case let u as URL in e {
+                if c == automatica, e.level == 1, escluseLC.contains(u.lastPathComponent) {
+                    e.skipDescendants(); continue
+                }
                 guard let v = try? u.resourceValues(forKeys: Set(chiavi)), v.isRegularFile == true else { continue }
                 var url = u
                 // segnaposto iCloud (".nome.icloud"): il file vero e' solo sul cloud
@@ -125,7 +131,12 @@ final class ArchivioFile: ObservableObject {
     @Published var risultato: [TipoFile: [FileTrovato]] = [:]
     @Published var analisi = false
     @Published var liberato: Int64 = 0
+    @Published var erroreSelettore: String?
     private let chiave = "cartelleFile"
+
+    /// "Sul mio iPhone → LiveContainer": la cartella di LiveContainer si vede nell'app File e qui e' gia'
+    /// raggiungibile, senza scegliere niente. Se Safari scarica li', i download si puliscono da soli.
+    var automatica: URL? { SpazioLC.radice }
 
     init() { carica() }
 
@@ -159,10 +170,10 @@ final class ArchivioFile: ObservableObject {
     }
 
     func analizza() async {
-        guard !cartelle.isEmpty, !analisi else { return }
+        guard !cartelle.isEmpty || automatica != nil, !analisi else { return }
         analisi = true
-        let c = cartelle
-        risultato = await Task.detached(priority: .userInitiated) { AnalisiFile.esegui(c) }.value
+        let c = cartelle, auto = automatica
+        risultato = await Task.detached(priority: .userInitiated) { AnalisiFile.esegui(c, automatica: auto) }.value
         analisi = false
     }
 
@@ -170,7 +181,7 @@ final class ArchivioFile: ObservableObject {
 
     /// Sposta nel cestino dell'app File (recuperabile 30 giorni); se non si puo', cancella.
     func togli(_ scelti: [FileTrovato]) async -> Int {
-        let c = cartelle
+        let c = cartelle + [automatica].compactMap { $0 }
         let fatti = await Task.detached { () -> [String] in
             var ok: [String] = []
             for f in scelti {
@@ -209,15 +220,23 @@ struct SchedaFile: View {
                 }
             }
             Section {
+                if archivio.automatica != nil {
+                    Label(L("Sul mio iPhone → LiveContainer (automatica)"), systemImage: "folder.fill").foregroundColor(Tema.rosso)
+                }
                 ForEach(archivio.cartelle, id: \.path) { c in
                     Label(c.lastPathComponent, systemImage: "folder").lineLimit(1)
                         .swipeActions { Button(L("Togli"), role: .destructive) { archivio.togliCartella(c) } }
                 }
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
+                if let e = archivio.erroreSelettore {
+                    Text(e).font(.footnote).foregroundColor(.orange)
+                }
             } header: { Text(L("Cartelle")) } footer: {
-                Text(L("Consiglio: aggiungi \"Download\" e \"Sul mio iPhone\". Scorri a sinistra su una cartella per toglierla dall'elenco."))
+                Text(archivio.automatica != nil
+                     ? L("Senza scegliere niente: in Impostazioni → App → Safari → Download scegli \"Sul mio iPhone → LiveContainer\": da lì in poi i download li pulisco da solo. Per altre cartelle (Download su iCloud) usa \"Aggiungi una cartella\"; se il selettore non risponde, in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File.")
+                     : L("Consiglio: aggiungi \"Download\" e \"Sul mio iPhone\". Scorri a sinistra su una cartella per toglierla dall'elenco."))
             }
-            if !archivio.cartelle.isEmpty {
+            if !archivio.cartelle.isEmpty || archivio.automatica != nil {
                 Section(L("Cosa togliere")) {
                     if archivio.analisi {
                         HStack { ProgressView(); Text(L("Analizzo i file…")).foregroundColor(.secondary) }
@@ -245,7 +264,14 @@ struct SchedaFile: View {
         .refreshable { await archivio.analizza() }
         .task { if archivio.risultato.isEmpty { await archivio.analizza() } }
         .fileImporter(isPresented: $scegli, allowedContentTypes: [.folder]) { r in
-            if case .success(let u) = r { archivio.aggiungi(u); Task { await archivio.analizza() } }
+            switch r {
+            case .success(let u):
+                archivio.erroreSelettore = nil
+                archivio.aggiungi(u)
+                Task { await archivio.analizza() }
+            case .failure(let e):
+                archivio.erroreSelettore = L("Il selettore non ha funzionato (%@). In LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File: attivo, poi riprova.", e.localizedDescription)
+            }
         }
     }
 }
@@ -311,7 +337,7 @@ struct ElencoFile: View {
                 let lista = sceltiFile
                 Task { _ = await archivio.togli(lista); scelti = []; Vibrazione.fatto() }
             }
-        } message: { Text(L("Li ritrovi in File → Eliminati di recente per 30 giorni.")) }
+        } message: { Text(L("Di solito finiscono in File → Eliminati di recente (30 giorni). Dove iOS non ha il cestino, vengono cancellati subito.")) }
         .onAppear {
             if !pronto { pronto = true; if tipo == .doppioni { scelti = Set(file.filter { !$0.daTenere }.map(\.id)) } }
         }

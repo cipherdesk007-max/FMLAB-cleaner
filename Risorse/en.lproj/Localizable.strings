@@ -204,3 +204,7 @@
 "Togliere %lld file (%@)?" = "Remove %lld files (%@)?";
 "Sposta nel cestino di File" = "Move to the Files trash";
 "Li ritrovi in File → Eliminati di recente per 30 giorni." = "You'll find them in Files → Recently Deleted for 30 days.";
+"Sul mio iPhone → LiveContainer (automatica)" = "On My iPhone → LiveContainer (automatic)";
+"Senza scegliere niente: in Impostazioni → App → Safari → Download scegli \"Sul mio iPhone → LiveContainer\": da lì in poi i download li pulisco da solo. Per altre cartelle (Download su iCloud) usa \"Aggiungi una cartella\"; se il selettore non risponde, in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File." = "Without picking anything: in Settings → Apps → Safari → Downloads choose \"On My iPhone → LiveContainer\": from then on I clean downloads by myself. For other folders (Downloads in iCloud) use \"Add a folder\"; if the picker doesn't respond, in LiveContainer long-press FMLAB Cleaner → Settings → Fix File Picker.";
+"Il selettore non ha funzionato (%@). In LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File: attivo, poi riprova." = "The picker didn't work (%@). In LiveContainer long-press FMLAB Cleaner → Settings → Fix File Picker: on, then try again.";
+"Di solito finiscono in File → Eliminati di recente (30 giorni). Dove iOS non ha il cestino, vengono cancellati subito." = "They usually go to Files → Recently Deleted (30 days). Where iOS has no trash, they are deleted right away.";

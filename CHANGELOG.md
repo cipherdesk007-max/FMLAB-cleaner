@@ -1,5 +1,15 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.1
+- **Cartella automatica** "Sul mio iPhone → LiveContainer": si pulisce senza scegliere niente. Impostando Safari
+  perché scarichi lì (Impostazioni → App → Safari → Download), i download si puliscono da soli.
+- Se il selettore di cartelle non risponde dentro LiveContainer, l'app lo dice e spiega la soluzione
+  (FMLAB Cleaner → Impostazioni in LiveContainer → Ripara Selettore File).
+- Messaggio onesto sul cestino: dove iOS non ha "Eliminati di recente", i file si cancellano subito.
+
+*English*: automatic "On My iPhone → LiveContainer" folder (set Safari downloads there and they get cleaned with
+no picking); clear guidance when the folder picker doesn't respond inside LiveContainer; honest trash message.
+
 ## 1.8.0
 - **Nuova scheda File**: pulisce anche l'app File (Download, Sul mio iPhone, iCloud Drive). Aggiungi una cartella
   una volta (iOS vuole che sia tu a sceglierla) e l'app la analizza da sola ogni volta:
