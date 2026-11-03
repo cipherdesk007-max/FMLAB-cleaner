@@ -229,3 +229,12 @@
 "Calcolo…" = "Calculating…";
 "Dal più pesante. Tocca una cartella per aprirla, scorri a sinistra su un file per toglierlo." = "Largest first. Tap a folder to open it, swipe left on a file to remove it.";
 "Cartella vuota" = "Empty folder";
+"FMLAB Cleaner è open source (licenza MIT): il codice originale, le versioni e lo storico sono su GitHub. Problemi, segnalazioni e idee: scrivili lì, così restano in un posto solo." = "FMLAB Cleaner is open source (MIT license): the original code, releases and history are on GitHub. Problems, reports and ideas: write them there, so they stay in one place.";
+"Codice sorgente su GitHub" = "Source code on GitHub";
+"Segnala un problema o un'idea" = "Report a problem or an idea";
+"Novità di ogni versione" = "What's new in each version";
+"Fonti e segnalazioni" = "Source and reports";
+"FMLAB Cleaner gira grazie a questi progetti open source:" = "FMLAB Cleaner runs thanks to these open-source projects:";
+"Theos (compilazione senza Mac)" = "Theos (building without a Mac)";
+"Riconoscimenti" = "Acknowledgements";
+"FMLAB Cleaner %@ · fatta da FMLAB" = "FMLAB Cleaner %@ · made by FMLAB";

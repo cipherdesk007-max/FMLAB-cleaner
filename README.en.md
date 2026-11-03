@@ -60,6 +60,11 @@ It also works as a normally installed app, without the App tab.
 
 Thanks to LiveContainer and SideStore: without them this app would have nowhere to run.
 
+## Reports
+
+Problems, ideas and requests: [open an issue here](https://github.com/cipherdesk007-max/FMLAB-cleaner/issues/new).
+The app has the button too, at the bottom of the Clean tab (**Source and reports**).
+
 ## Privacy
 
 Photos never leave the phone: scanning, compression and conversion all run on the iPhone. The only network

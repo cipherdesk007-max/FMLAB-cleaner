@@ -238,10 +238,9 @@ struct Riepilogo: View {
                     Task { await agg.controlla(manuale: true) }
                 }.disabled(agg.controllo)
                 if let e = agg.esito { Text(e).foregroundColor(.secondary) }
-            } header: { Text("Altri consigli") } footer: {
-                Text("FMLAB Cleaner \(agg.attuale)").frame(maxWidth: .infinity)
-            }
+            } header: { Text("Altri consigli") }
             .font(.footnote)
+            Informazioni(versione: agg.attuale)
         }
         .refreshable { await lib.analizza() }
         .confirmationDialog(L("Cancellare per sempre %@ (%@)?", contaElementi(lib.cestino?.numero ?? 0), formatoByte(lib.cestino?.byte ?? 0)),
@@ -578,6 +577,43 @@ struct AltreApp: View {
                 Label(L("Apri %@ e segui i passi", nome), systemImage: "arrow.up.right.square").frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
+        }
+    }
+}
+
+
+/// Riconoscimenti e fonti: il codice originale e' su GitHub, ed e' li' che si segnalano problemi e idee.
+struct Informazioni: View {
+    let versione: String
+    @Environment(\.openURL) var apri
+    static let repo = "https://github.com/cipherdesk007-max/FMLAB-cleaner"
+
+    var body: some View {
+        Section {
+            Text(L("FMLAB Cleaner è open source (licenza MIT): il codice originale, le versioni e lo storico sono su GitHub. Problemi, segnalazioni e idee: scrivili lì, così restano in un posto solo."))
+                .font(.footnote).foregroundColor(.secondary)
+            collegamento(L("Codice sorgente su GitHub"), "chevron.left.forwardslash.chevron.right", Self.repo)
+            collegamento(L("Segnala un problema o un'idea"), "exclamationmark.bubble", Self.repo + "/issues/new")
+            collegamento(L("Novità di ogni versione"), "list.bullet.rectangle", Self.repo + "/blob/main/CHANGELOG.md")
+        } header: { Text(L("Fonti e segnalazioni")) }
+        Section {
+            Text(L("FMLAB Cleaner gira grazie a questi progetti open source:"))
+                .font(.footnote).foregroundColor(.secondary)
+            collegamento("LiveContainer — khanhduytran0 e collaboratori", "square.stack.3d.up", "https://github.com/LiveContainer/LiveContainer")
+            collegamento("SideStore", "arrow.down.app", "https://github.com/SideStore/SideStore")
+            collegamento(L("Theos (compilazione senza Mac)"), "hammer", "https://github.com/theos/theos")
+        } header: { Text(L("Riconoscimenti")) } footer: {
+            Text(L("FMLAB Cleaner %@ · fatta da FMLAB", versione)).frame(maxWidth: .infinity).padding(.top, 6)
+        }
+    }
+
+    func collegamento(_ testo: String, _ icona: String, _ url: String) -> some View {
+        Button { if let u = URL(string: url) { apri(u) } } label: {
+            HStack {
+                Label(testo, systemImage: icona)
+                Spacer()
+                Image(systemName: "arrow.up.right").font(.caption).foregroundColor(.secondary)
+            }
         }
     }
 }

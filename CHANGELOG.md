@@ -1,5 +1,13 @@
 # Changelog — FMLAB Cleaner
 
+## 1.9.1
+- **Fonti e riconoscimenti nell'app** (in fondo alla scheda Pulizia): il codice originale è su GitHub e lì si
+  scrivono problemi, segnalazioni e idee (pulsanti per il codice, per segnalare un problema e per le novità di
+  ogni versione). Riconoscimenti a LiveContainer, SideStore e Theos, con i loro collegamenti.
+
+*English*: in-app "Source and reports" (GitHub source, report a problem, changelog) and acknowledgements
+(LiveContainer, SideStore, Theos) at the bottom of the Clean tab.
+
 ## 1.9.0
 *Provata sull'iPhone: cartelle con i nomi giusti (Sul mio iPhone, iCloud Drive → Downloads) ed esplorabili.*
 

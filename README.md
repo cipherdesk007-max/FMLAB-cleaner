@@ -62,6 +62,11 @@ Funziona anche installata normalmente, senza la scheda App.
 
 Grazie a LiveContainer e SideStore: senza di loro questa app non avrebbe dove girare.
 
+## Segnalazioni
+
+Problemi, idee e richieste: [apri una segnalazione qui](https://github.com/cipherdesk007-max/FMLAB-cleaner/issues/new).
+Anche l'app ha il pulsante, in fondo alla scheda Pulizia (**Fonti e segnalazioni**).
+
 ## Privacy
 
 Le foto non escono mai dal telefono: l'analisi, la compressione e la conversione avvengono sull'iPhone.
