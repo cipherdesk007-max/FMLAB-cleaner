@@ -9,10 +9,13 @@ Everything stays on the phone: no internet (except the update check), no subscri
 The app follows the iPhone language (Italian or English).
 
 <p align="center">
-  <img src="screenshots/pulizia.png" width="32%" alt="Clean">
-  <img src="screenshots/file.png" width="32%" alt="Files">
-  <img src="screenshots/telefono.png" width="32%" alt="Phone">
+  <img src="screenshots/pulizia.png" width="24%" alt="Clean">
+  <img src="screenshots/file.png" width="24%" alt="Files">
+  <img src="screenshots/app.png" width="24%" alt="App">
+  <img src="screenshots/telefono.png" width="24%" alt="Phone">
 </p>
+
+<sub>FMLAB Cleaner 1.8.3 screenshots (last version before the cosmetic fixes) are also kept in [`screenshots/1.8.3/`](screenshots/1.8.3/).</sub>
 
 ## Install
 

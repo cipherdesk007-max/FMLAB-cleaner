@@ -8,10 +8,13 @@
 Tutto resta sul telefono: niente internet (tranne il controllo aggiornamenti), niente abbonamenti, niente pubblicità.
 
 <p align="center">
-  <img src="screenshots/pulizia.png" width="32%" alt="Pulizia">
-  <img src="screenshots/file.png" width="32%" alt="File">
-  <img src="screenshots/telefono.png" width="32%" alt="Telefono">
+  <img src="screenshots/pulizia.png" width="24%" alt="Pulizia">
+  <img src="screenshots/file.png" width="24%" alt="File">
+  <img src="screenshots/app.png" width="24%" alt="App">
+  <img src="screenshots/telefono.png" width="24%" alt="Telefono">
 </p>
+
+<sub>Le schermate di FMLAB Cleaner 1.8.3 (ultima versione prima delle correzioni estetiche) sono anche in [`screenshots/1.8.3/`](screenshots/1.8.3/).</sub>
 
 ## Installazione
 
