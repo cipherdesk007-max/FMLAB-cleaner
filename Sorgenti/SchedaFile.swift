@@ -233,18 +233,21 @@ final class ArchivioFile: ObservableObject {
         do { try fm.trashItem(at: u, resultingItemURL: nil); return nil } catch { ultimo = error.localizedDescription }
         do { try fm.removeItem(at: u); return nil } catch { ultimo = error.localizedDescription }
         // ultima via: il coordinatore di file, con un limite di 8 secondi perche' puo' non rispondere
+        final class Esito: @unchecked Sendable { var riuscito = false; var errore: String? }
+        let esito = Esito()
         let coord = NSFileCoordinator()
         let fatto = DispatchSemaphore(value: 0)
-        var riuscito = false
         DispatchQueue.global().async {
             var errore: NSError?
             coord.coordinate(writingItemAt: u, options: .forDeleting, error: &errore) { v in
-                riuscito = (try? fm.removeItem(at: v)) != nil
+                esito.riuscito = (try? FileManager.default.removeItem(at: v)) != nil
             }
-            if let e = errore { ultimo = e.localizedDescription }
+            esito.errore = errore?.localizedDescription
             fatto.signal()
         }
         if fatto.wait(timeout: .now() + 8) == .timedOut { coord.cancel(); return L("iOS non risponde") }
+        if let e = esito.errore { ultimo = e }
+        let riuscito = esito.riuscito
         return riuscito || !fm.fileExists(atPath: u.path) ? nil : ultimo
     }
 
