@@ -141,22 +141,59 @@ final class ArchivioFile: ObservableObject {
 
     init() { carica() }
 
+    /// Cartelle che iOS non lascia ricordare (segnalibro non creato): valgono finche' l'app resta aperta.
+    private var soloPerOra: [URL] = []
+
     func carica() {
         let dati = UserDefaults.standard.array(forKey: chiave) as? [Data] ?? []
-        cartelle = dati.compactMap { d in
+        var lista: [URL] = []
+        for d in dati {
             var vecchio = false
-            return try? URL(resolvingBookmarkData: d, options: [], relativeTo: nil, bookmarkDataIsStale: &vecchio)
+            if let u = try? URL(resolvingBookmarkData: d, options: [], relativeTo: nil, bookmarkDataIsStale: &vecchio),
+               !lista.contains(where: { $0.path == u.path }) { lista.append(u) }
         }
+        for u in soloPerOra where !lista.contains(where: { $0.path == u.path }) { lista.append(u) }
+        cartelle = lista
     }
 
-    func aggiungi(_ u: URL) {
-        let aperta = u.startAccessingSecurityScopedResource()
-        defer { if aperta { u.stopAccessingSecurityScopedResource() } }
-        guard let d = try? u.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) else { return }
-        var dati = UserDefaults.standard.array(forKey: chiave) as? [Data] ?? []
-        dati.append(d)
-        UserDefaults.standard.set(dati, forKey: chiave)
+    /// Risposta del selettore: tiene solo le cartelle vere, scarta copie e file, e dice sempre cosa e' successo.
+    func ricevi(_ urls: [URL]) {
+        guard !urls.isEmpty else { return }
+        var copie = 0, file = 0, aggiunte = 0, temporanee = 0
+        for u in urls {
+            let aperta = u.startAccessingSecurityScopedResource()
+            defer { if aperta { u.stopAccessingSecurityScopedResource() } }
+            if RiparaSelettore.eUnaCopia(u) {
+                copie += 1
+                let p = u.path
+                if p.contains("Inbox") || p.hasPrefix(FileManager.default.temporaryDirectory.path) {
+                    try? FileManager.default.removeItem(at: u)   // la copia occupa solo spazio
+                }
+                continue
+            }
+            guard (try? u.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else { file += 1; continue }
+            if cartelle.contains(where: { $0.path == u.path }) { aggiunte += 1; continue }
+            if let d = try? u.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                var dati = UserDefaults.standard.array(forKey: chiave) as? [Data] ?? []
+                dati.append(d)
+                UserDefaults.standard.set(dati, forKey: chiave)
+            } else {
+                soloPerOra.append(u); temporanee += 1
+            }
+            aggiunte += 1
+        }
         carica()
+        if aggiunte == 0 {
+            erroreSelettore = copie > 0
+                ? L("È arrivata una copia, non la cartella vera. In LiveContainer tieni premuto FMLAB Cleaner → Impostazioni e spegni \"Sistema Selettore File (Legacy)\", poi riprova.")
+                : L("Hai scelto un file, non una cartella: tocca Seleziona, spunta la cartella e poi Apri.")
+        } else {
+            erroreSelettore = temporanee > 0
+                ? L("Cartella aggiunta, ma iOS non la lascia ricordare: dopo aver chiuso l'app andrà aggiunta di nuovo.")
+                : nil
+            Vibrazione.fatto()
+            Task { await analizza() }
+        }
     }
 
     func togliCartella(_ u: URL) {
@@ -166,15 +203,23 @@ final class ArchivioFile: ObservableObject {
             return (try? URL(resolvingBookmarkData: d, options: [], relativeTo: nil, bookmarkDataIsStale: &vecchio))?.path == u.path
         }
         UserDefaults.standard.set(dati, forKey: chiave)
+        soloPerOra.removeAll { $0.path == u.path }
         carica()
         risultato = [:]
     }
 
+    private var daRifare = false
+
     func analizza() async {
-        guard !cartelle.isEmpty || automatica != nil, !analisi else { return }
+        guard !cartelle.isEmpty || automatica != nil else { return }
+        // se un'analisi e' gia' in corso (es. hai appena aggiunto una cartella) la rifaccio appena finisce
+        guard !analisi else { daRifare = true; return }
         analisi = true
-        let c = cartelle, auto = automatica
-        risultato = await Task.detached(priority: .userInitiated) { AnalisiFile.esegui(c, automatica: auto) }.value
+        repeat {
+            daRifare = false
+            let c = cartelle, auto = automatica
+            risultato = await Task.detached(priority: .userInitiated) { AnalisiFile.esegui(c, automatica: auto) }.value
+        } while daRifare
         analisi = false
     }
 
@@ -231,6 +276,10 @@ struct SchedaFile: View {
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
                 Text(L("Nel selettore: tocca **Seleziona** in alto, spunta la cartella (es. Download) e tocca **Apri**."))
                     .font(.caption).foregroundColor(.secondary)
+                if RiparaSelettore.dentroLiveContainer && !RiparaSelettore.attiva {
+                    Text(L("Se dopo \"Apri\" la rotella gira e basta: in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → accendi \"Ripara Selettore File\"."))
+                        .font(.caption).foregroundColor(.orange)
+                }
                 if let e = archivio.erroreSelettore {
                     Text(e).font(.footnote).foregroundColor(.orange)
                 }
@@ -269,15 +318,7 @@ struct SchedaFile: View {
         .sheet(isPresented: $scegli) {
             SelettoreCartelle { urls in
                 scegli = false
-                let cartelle = urls.filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
-                if cartelle.isEmpty {
-                    archivio.erroreSelettore = urls.isEmpty ? nil
-                        : L("Hai scelto un file, non una cartella: tocca Seleziona, spunta la cartella e poi Apri.")
-                } else {
-                    archivio.erroreSelettore = nil
-                    cartelle.forEach { archivio.aggiungi($0) }
-                    Task { await archivio.analizza() }
-                }
+                archivio.ricevi(urls)
             }
             .ignoresSafeArea()
         }
@@ -361,6 +402,7 @@ struct SelettoreCartelle: UIViewControllerRepresentable {
     func makeCoordinator() -> Coordinatore { Coordinatore(fine: fine) }
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        RiparaSelettore.applica()   // dentro LiveContainer: senza, "Apri" gira all'infinito
         let p = UIDocumentPickerViewController(forOpeningContentTypes: [.folder], asCopy: false)
         p.allowsMultipleSelection = true
         p.shouldShowFileExtensions = true

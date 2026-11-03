@@ -9,7 +9,7 @@ struct PuliziaFotoApp: App {
     @StateObject private var spazio = SpazioLC()
     @StateObject private var archivio = ArchivioFile()
 
-    init() { Tema.applica() }
+    init() { Tema.applica(); RiparaSelettore.applica() }
 
     var body: some Scene {
         WindowGroup {

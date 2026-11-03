@@ -1,5 +1,17 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.3
+- **"Aggiungi una cartella" non si blocca più su "Apri"** (rotella che girava all'infinito, anche su "Sul mio iPhone").
+  Il motivo: dentro LiveContainer il selettore di File provava a consegnare la cartella a un'app con il nome
+  sbagliato e restava ad aspettare. Ora FMLAB Cleaner si ripara da solo, senza toccare le impostazioni di LiveContainer.
+- Dopo **Apri** l'app dice sempre cosa è successo: cartella aggiunta (con vibrazione e analisi subito), file scelto
+  al posto della cartella, oppure copia arrivata al posto della cartella vera (opzione Legacy di LiveContainer accesa).
+- La stessa cartella non si aggiunge due volte; se iOS non la lascia ricordare viene comunque usata finché l'app è aperta.
+- Se aggiungi una cartella mentre l'analisi è in corso, l'analisi riparte da sola con la cartella nuova.
+
+*English*: "Add a folder" no longer hangs after "Open" inside LiveContainer (the app now fixes the picker by itself);
+clear feedback after picking; no duplicate folders; analysis restarts when a folder is added mid-scan.
+
 ## 1.8.2
 - **Scelta delle cartelle che funziona dentro LiveContainer**: LiveContainer allarga i tipi di file del selettore e
   sparisce il tasto per scegliere la cartella aperta. Ora il selettore è a selezione multipla: **Seleziona** →
