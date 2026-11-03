@@ -1,5 +1,12 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.2
+- **Scelta delle cartelle che funziona dentro LiveContainer**: LiveContainer allarga i tipi di file del selettore e
+  sparisce il tasto per scegliere la cartella aperta. Ora il selettore è a selezione multipla: **Seleziona** →
+  spunta la cartella (es. Download) → **Apri**. Si possono aggiungere più cartelle insieme.
+
+*English*: folder picking works inside LiveContainer (multi-select picker: Select → check the folder → Open).
+
 ## 1.8.1
 - **Cartella automatica** "Sul mio iPhone → LiveContainer": si pulisce senza scegliere niente. Impostando Safari
   perché scarichi lì (Impostazioni → App → Safari → Download), i download si puliscono da soli.

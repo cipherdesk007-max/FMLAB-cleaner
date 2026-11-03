@@ -4,6 +4,7 @@
 import CryptoKit
 import SwiftUI
 import UniformTypeIdentifiers
+import UIKit
 
 struct FileTrovato: Identifiable, Hashable {
     let url: URL
@@ -228,12 +229,14 @@ struct SchedaFile: View {
                         .swipeActions { Button(L("Togli"), role: .destructive) { archivio.togliCartella(c) } }
                 }
                 Button { scegli = true } label: { Label(L("Aggiungi una cartella"), systemImage: "folder.badge.plus") }
+                Text(L("Nel selettore: tocca **Seleziona** in alto, spunta la cartella (es. Download) e tocca **Apri**."))
+                    .font(.caption).foregroundColor(.secondary)
                 if let e = archivio.erroreSelettore {
                     Text(e).font(.footnote).foregroundColor(.orange)
                 }
             } header: { Text(L("Cartelle")) } footer: {
                 Text(archivio.automatica != nil
-                     ? L("Senza scegliere niente: in Impostazioni → App → Safari → Download scegli \"Sul mio iPhone → LiveContainer\": da lì in poi i download li pulisco da solo. Per altre cartelle (Download su iCloud) usa \"Aggiungi una cartella\"; se il selettore non risponde, in LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File.")
+                     ? L("Senza scegliere niente: in Impostazioni → App → Safari → Download scegli \"Sul mio iPhone → LiveContainer\": da lì in poi i download li pulisco da solo. Per altre cartelle (Download su iCloud) usa \"Aggiungi una cartella\".")
                      : L("Consiglio: aggiungi \"Download\" e \"Sul mio iPhone\". Scorri a sinistra su una cartella per toglierla dall'elenco."))
             }
             if !archivio.cartelle.isEmpty || archivio.automatica != nil {
@@ -263,15 +266,21 @@ struct SchedaFile: View {
         .navigationTitle(L("File"))
         .refreshable { await archivio.analizza() }
         .task { if archivio.risultato.isEmpty { await archivio.analizza() } }
-        .fileImporter(isPresented: $scegli, allowedContentTypes: [.folder]) { r in
-            switch r {
-            case .success(let u):
-                archivio.erroreSelettore = nil
-                archivio.aggiungi(u)
-                Task { await archivio.analizza() }
-            case .failure(let e):
-                archivio.erroreSelettore = L("Il selettore non ha funzionato (%@). In LiveContainer tieni premuto FMLAB Cleaner → Impostazioni → Ripara Selettore File: attivo, poi riprova.", e.localizedDescription)
+        .sheet(isPresented: $scegli) {
+            SelettoreCartelle { urls in
+                scegli = false
+                let cartelle = urls.filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
+                if cartelle.isEmpty {
+                    archivio.erroreSelettore = urls.isEmpty ? nil
+                        : L("Hai scelto un file, non una cartella: tocca Seleziona, spunta la cartella e poi Apri.")
+                } else {
+                    archivio.erroreSelettore = nil
+                    cartelle.forEach { archivio.aggiungi($0) }
+                    Task { await archivio.analizza() }
+                }
             }
+            .ignoresSafeArea()
+        }
         }
     }
 }
@@ -341,5 +350,31 @@ struct ElencoFile: View {
         .onAppear {
             if !pronto { pronto = true; if tipo == .doppioni { scelti = Set(file.filter { !$0.daTenere }.map(\.id)) } }
         }
+    }
+}
+
+/// Selettore di cartelle con selezione multipla. Dentro LiveContainer il selettore normale di SwiftUI non
+/// permette di scegliere una cartella (LiveContainer allarga i tipi di file ammessi e sparisce il tasto
+/// "Apri" della cartella corrente): con "Seleziona" le cartelle diventano spuntabili e si possono aprire.
+struct SelettoreCartelle: UIViewControllerRepresentable {
+    let fine: ([URL]) -> Void
+
+    func makeCoordinator() -> Coordinatore { Coordinatore(fine: fine) }
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let p = UIDocumentPickerViewController(forOpeningContentTypes: [.folder], asCopy: false)
+        p.allowsMultipleSelection = true
+        p.shouldShowFileExtensions = true
+        p.delegate = context.coordinator
+        return p
+    }
+
+    func updateUIViewController(_ vc: UIDocumentPickerViewController, context: Context) {}
+
+    final class Coordinatore: NSObject, UIDocumentPickerDelegate {
+        let fine: ([URL]) -> Void
+        init(fine: @escaping ([URL]) -> Void) { self.fine = fine }
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) { fine(urls) }
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { fine([]) }
     }
 }
