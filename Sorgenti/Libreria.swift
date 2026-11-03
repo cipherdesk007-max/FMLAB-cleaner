@@ -4,9 +4,10 @@
 import Foundation
 import Photos
 import SwiftUI
+import UIKit
 
 enum Categoria: String, CaseIterable, Identifiable {
-    case videoGrandi, live, doppioni, registrazioni, screenshot, raffiche
+    case videoGrandi, live, doppioni, simili, registrazioni, screenshot, raffiche, sfocate, buie
 
     var id: String { rawValue }
 
@@ -14,6 +15,9 @@ enum Categoria: String, CaseIterable, Identifiable {
         switch self {
         case .videoGrandi: return L("Video grandi")
         case .live: return L("Live Photo")
+        case .simili: return L("Foto simili")
+        case .sfocate: return L("Foto sfocate")
+        case .buie: return L("Foto buie")
         case .doppioni: return L("Doppioni")
         case .registrazioni: return L("Registrazioni dello schermo")
         case .screenshot: return L("Screenshot")
@@ -25,6 +29,9 @@ enum Categoria: String, CaseIterable, Identifiable {
         switch self {
         case .videoGrandi: return "film"
         case .live: return "livephoto"
+        case .simili: return "square.stack"
+        case .sfocate: return "camera.metering.unknown"
+        case .buie: return "moon"
         case .doppioni: return "square.on.square"
         case .registrazioni: return "record.circle"
         case .screenshot: return "camera.viewfinder"
@@ -38,6 +45,12 @@ enum Categoria: String, CaseIterable, Identifiable {
             return L("I video da 50 MB in su, dal più pesante. Puoi toglierli oppure comprimerli: restano uguali sul telefono e pesano circa la metà.")
         case .live:
             return L("Ogni Live Photo contiene anche un piccolo video. Trasformandola in foto normale il video sparisce e la foto resta identica. Il peso indicato è quello che risparmi.")
+        case .simili:
+            return L("Scatti quasi uguali fatti a pochi secondi di distanza. In ogni gruppo resta la foto più nitida (e le preferite): le altre sono già selezionate, controlla prima di togliere.")
+        case .sfocate:
+            return L("Foto probabilmente mosse o sfocate, secondo l'analisi sul telefono. Niente è selezionato: guarda e scegli tu.")
+        case .buie:
+            return L("Foto quasi nere (scattate in tasca o al buio). Niente è selezionato: guarda e scegli tu.")
         case .doppioni:
             return L("Foto e video identici (stesse dimensioni e stesso peso). Il più vecchio di ogni gruppo resta: gli altri sono già selezionati.")
         case .registrazioni:
@@ -50,7 +63,11 @@ enum Categoria: String, CaseIterable, Identifiable {
     }
 
     /// Nelle categorie "sicure" gli elementi partono gia' selezionati.
-    var preselezione: Bool { self == .doppioni || self == .raffiche }
+    var preselezione: Bool { self == .doppioni || self == .raffiche || self == .simili }
+    /// Categorie divise in gruppi con una foto da tenere
+    var aGruppi: Bool { self == .doppioni || self == .simili }
+    /// Categorie che si riempiono solo con l'analisi approfondita
+    var approfondita: Bool { self == .simili || self == .sfocate || self == .buie }
 }
 
 struct Elemento: Identifiable, Hashable {
@@ -249,6 +266,8 @@ final class Libreria: ObservableObject {
                 Task { @MainActor in self.progresso = p }
             }
         }.value
+        var r = r
+        for c in Categoria.allCases where c.approfondita { r.categorie[c] = risultato.categorie[c] }
         risultato = r
         analizzata = true
         analisiInCorso = false
@@ -296,6 +315,36 @@ final class Libreria: ObservableObject {
         await leggiCestino()
     }
 
+    // MARK: analisi approfondita (foto simili, sfocate, buie)
+    @Published var approfonditaInCorso = false
+    @Published var approfonditaFatta = false
+    @Published var progressoApprofondita: Double = 0
+    @Published var fotoAnalizzate = 0
+
+    func analisiApprofondita() async {
+        guard accesso, !approfonditaInCorso else { return }
+        approfonditaInCorso = true
+        progressoApprofondita = 0
+        annullaApprofondita.value = false
+        UIApplication.shared.isIdleTimerDisabled = true
+        let pesi = CachePesi.carica().mapValues(\.b)
+        let es = await Task.detached(priority: .userInitiated) { () -> EsitoImmagini in
+            AnalisiImmagini.esegui(pesi: pesi, annullata: { annullaApprofondita.value }) { p in
+                Task { @MainActor in self.progressoApprofondita = p }
+            }
+        }.value
+        UIApplication.shared.isIdleTimerDisabled = false
+        risultato.categorie[.simili] = es.simili
+        risultato.categorie[.sfocate] = es.sfocate
+        risultato.categorie[.buie] = es.buie
+        fotoAnalizzate = es.analizzate
+        approfonditaFatta = true
+        approfonditaInCorso = false
+        Vibrazione.fatto()
+    }
+
+    func fermaApprofondita() { annullaApprofondita.value = true }
+
     func elementi(_ c: Categoria) -> [Elemento] { risultato.categorie[c] ?? [] }
 
     func peso(_ c: Categoria) -> Int64 {
@@ -314,9 +363,24 @@ final class Libreria: ObservableObject {
             risultato.categorie[c] = elementi(c).filter { !via.contains($0.id) }
         }
         // doppioni: un gruppo rimasto con un solo elemento non e' piu' un doppione
-        let conteggi = Dictionary(grouping: elementi(.doppioni), by: \.gruppo).mapValues(\.count)
-        risultato.categorie[.doppioni] = elementi(.doppioni).filter { (conteggi[$0.gruppo] ?? 0) > 1 }
+        for c in [Categoria.doppioni, .simili] {
+            let conteggi = Dictionary(grouping: elementi(c), by: \.gruppo).mapValues(\.count)
+            risultato.categorie[c] = elementi(c).filter { (conteggi[$0.gruppo] ?? 0) > 1 }
+        }
         risultato.totale -= scelti.reduce(0) { $0 + $1.byte }
         await leggiCestino()
+    }
+}
+
+/// "Ferma" dell'analisi approfondita (costante globale: leggibile dal lavoro in sottofondo)
+let annullaApprofondita = Bandierina()
+
+/// Interruttore letto dal lavoro in sottofondo (analisi approfondita) senza passare dal main thread.
+final class Bandierina: @unchecked Sendable {
+    private let lock = NSLock()
+    private var v = false
+    var value: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return v }
+        set { lock.lock(); v = newValue; lock.unlock() }
     }
 }

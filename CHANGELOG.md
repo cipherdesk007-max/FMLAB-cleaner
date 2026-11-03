@@ -1,5 +1,17 @@
 # Changelog — FMLAB Cleaner
 
+## 1.7.0
+- **Analisi approfondita** (a richiesta, tutta sul telefono con Vision di Apple):
+  - **Foto simili**: scatti quasi uguali a pochi secondi di distanza; in ogni gruppo resta la più nitida (e le
+    preferite), le altre sono preselezionate;
+  - **Foto sfocate** e **Foto buie**: da controllare, mai preselezionate.
+  Avanzamento, pulsante Ferma, schermo sempre acceso durante l'analisi.
+- **WhatsApp, Telegram, Eliminati di recente**: iOS non permette di aprire una pagina interna di un'altra app, solo
+  l'app stessa. Ora i passi sono numerati (1, 2, 3, 4) e il pulsante dice "Apri … e segui i passi".
+
+*English*: on-device deep analysis (similar photos keeping the sharpest, blurry and dark photos); numbered steps
+for WhatsApp, Telegram and Recently Deleted, since iOS can only open another app, not one of its inner pages.
+
 ## 1.6.1
 - "Puoi liberare fino a" non conta più due volte lo stesso video (es. grande e doppione insieme).
 - Accessibilità: le miniature si leggono con VoiceOver ("Foto, 3 MB", selezionata o no).

@@ -114,6 +114,22 @@ struct Riepilogo: View {
         return migliore.values.reduce(0, +)
     }
 
+    func rigaCategoria(_ c: Categoria) -> some View {
+        NavigationLink(destination: Elenco(categoria: c)) {
+            HStack {
+                Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
+                VStack(alignment: .leading) {
+                    Text(c.titolo)
+                    Text(contaElementi(lib.elementi(c).filter { !$0.daTenere }.count))
+                        .font(.caption).foregroundColor(.secondary)
+                }
+                Spacer()
+                Text(lib.peso(c) > 0 ? formatoByte(lib.peso(c)) : "—").foregroundColor(.secondary).monospacedDigit()
+            }
+        }
+        .disabled(lib.elementi(c).isEmpty)
+    }
+
     var body: some View {
         List {
             if agg.nuova != nil { Section { AvvisoAggiornamento(agg: agg) } }
@@ -138,22 +154,37 @@ struct Riepilogo: View {
                 .padding(.vertical, 6)
             }
             Section("Cosa togliere") {
-                ForEach(Categoria.allCases) { c in
-                    NavigationLink(destination: Elenco(categoria: c)) {
-                        HStack {
-                            Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
-                            VStack(alignment: .leading) {
-                                Text(c.titolo)
-                                Text(contaElementi(lib.elementi(c).filter { !$0.daTenere }.count))
-                                    .font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Text(lib.peso(c) > 0 ? formatoByte(lib.peso(c)) : "—").foregroundColor(.secondary).monospacedDigit()
-                        }
-                    }
-                    .disabled(lib.elementi(c).isEmpty)
-                }
+                ForEach(Categoria.allCases.filter { !$0.approfondita }) { c in rigaCategoria(c) }
             }
+            Section {
+                if lib.approfonditaFatta && !lib.approfonditaInCorso {
+                    ForEach(Categoria.allCases.filter { $0.approfondita }) { c in rigaCategoria(c) }
+                    Button(L("Rifai l'analisi delle foto")) { Task { await lib.analisiApprofondita() } }
+                        .font(.footnote)
+                } else if lib.approfonditaInCorso {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ProgressView(value: lib.progressoApprofondita)
+                        Text(L("Guardo ogni foto… %lld%%", Int(lib.progressoApprofondita * 100)))
+                            .font(.footnote).foregroundColor(.secondary)
+                        Text(L("Tieni l'app aperta: lo schermo resta acceso da solo."))
+                            .font(.caption).foregroundColor(.secondary)
+                        Button(L("Ferma"), role: .destructive) { lib.fermaApprofondita() }.font(.footnote)
+                    }
+                    .padding(.vertical, 4)
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L("Trova foto simili (tiene la più nitida), sfocate e buie guardando ogni foto, tutto sul telefono."))
+                            .font(.footnote).foregroundColor(.secondary)
+                        Button { Task { await lib.analisiApprofondita() } } label: {
+                            Label(L("Analizza le foto"), systemImage: "eye").frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Text(L("Circa 1-3 minuti ogni 1000 foto."))
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+            } header: { Text(L("Analisi approfondita")) }
             Section {
                 if let c = lib.cestino {
                     VStack(alignment: .leading, spacing: 8) {
@@ -173,10 +204,17 @@ struct Riepilogo: View {
                     // iOS non lascia leggere l'album alle app: si spiega il modo piu' veloce a mano
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Eliminati di recente", systemImage: "trash").font(.headline)
-                        Text("Quello che togli resta lì 30 giorni e occupa ancora spazio. iOS non lascia svuotare quell'album a nessuna app: si svuota solo dall'app Foto, con **Seleziona → Elimina tutto** (in basso a sinistra), che toglie anche ciò che non è ancora comparso sullo schermo.")
+                        Text("Quello che togli resta lì 30 giorni e occupa ancora spazio. iOS non lascia svuotare quell'album a nessuna app: si svuota solo dall'app Foto.")
                             .font(.footnote).foregroundColor(.secondary)
+                        ForEach(Array([L("Raccolte (in basso)"), L("Scorri fino a Utility → Eliminati di recente (Face ID)"), L("Seleziona (in alto a destra)"), L("Elimina tutto (in basso a sinistra): toglie anche ciò che non è ancora comparso")].enumerated()), id: \.offset) { i, p in
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Text("\(i + 1)").font(.caption.bold()).foregroundColor(.black)
+                                    .frame(width: 20, height: 20).background(Circle().fill(Tema.rosso))
+                                Text(p).font(.footnote)
+                            }
+                        }
                         Button { if let u = URL(string: "photos-redirect://") { apri(u) } } label: {
-                            Label("Apri Foto", systemImage: "photo.on.rectangle").frame(maxWidth: .infinity)
+                            Label("Apri Foto e segui i passi", systemImage: "photo.on.rectangle").frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
                     }
@@ -252,7 +290,7 @@ struct Elenco: View {
                 .font(.footnote).foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal).padding(.top, 8)
-            if categoria == .doppioni {
+            if categoria.aGruppi {
                 ForEach(gruppi, id: \.self) { g in
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Gruppo \(g)").font(.caption.weight(.semibold)).foregroundColor(.secondary)
@@ -469,7 +507,8 @@ struct AltreApp: View {
                         nota: L("Foto, video e file delle chat restano sul cloud di Telegram: si riscaricano quando li riapri."))
             } else {
                 esterna(icona: "paperplane.fill", nome: "Telegram", url: "tg://settings",
-                        passi: L("Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache. Consiglio: reinstallalo dentro LiveContainer (le chat sono sul cloud, basta rientrare) e da qui lo pulisci senza uscire."))
+                        passi: [L("Impostazioni (in basso a destra)"), L("Dati e memoria"), L("Utilizzo memoria"), L("Svuota cache")],
+                        nota: L("Consiglio: reinstallalo dentro LiveContainer (le chat sono sul cloud, basta rientrare) e da qui lo pulisci senza uscire."))
             }
             Divider()
             if let w = spazio.whatsapp {
@@ -479,7 +518,8 @@ struct AltreApp: View {
                             : L("Le chat non si toccano: si toglie solo ciò che WhatsApp ricrea da solo."))
             } else {
                 esterna(icona: "message.fill", nome: "WhatsApp", url: "whatsapp://",
-                        passi: L("Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento."))
+                        passi: [L("Impostazioni (in basso a destra)"), L("Spazio e dati"), L("Gestisci spazio"), L("Apri le chat più pesanti e togli video e file grandi")],
+                        nota: L("Poi Impostazioni → Chat → Salva nel rullino: spento, così le foto non si duplicano in Foto."))
             }
         }
         .padding(.vertical, 4)
@@ -516,14 +556,23 @@ struct AltreApp: View {
         }
     }
 
-    func esterna(icona: String, nome: String, url: String, passi: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label(nome, systemImage: icona).font(.headline)
-                Spacer()
-                Button(L("Apri")) { if let u = URL(string: url) { apri(u) } }.buttonStyle(.bordered)
+    // iOS permette di aprire un'altra app ma non una sua pagina interna: l'app si apre sulla schermata
+    // principale e i passi numerati dicono dove toccare.
+    func esterna(icona: String, nome: String, url: String, passi: [String], nota: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(nome, systemImage: icona).font(.headline)
+            ForEach(Array(passi.enumerated()), id: \.offset) { i, p in
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("\(i + 1)").font(.caption.bold()).foregroundColor(.black)
+                        .frame(width: 20, height: 20).background(Circle().fill(Tema.rosso))
+                    Text(p).font(.footnote)
+                }
             }
-            Text(passi).font(.footnote).foregroundColor(.secondary)
+            Text(nota).font(.caption).foregroundColor(.secondary)
+            Button { if let u = URL(string: url) { apri(u) } } label: {
+                Label(L("Apri %@ e segui i passi", nome), systemImage: "arrow.up.right.square").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
         }
     }
 }

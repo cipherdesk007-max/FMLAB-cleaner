@@ -26,7 +26,7 @@ It installs over the old version and keeps your data. Works with SideStore/AltSt
 
 | Tab | What it does |
 |---|---|
-| **Clean** | Large videos (largest first; remove or **compress** to about half), **Live Photo → photo** (drops the 3-second video), identical duplicates (the original stays), screen recordings, screenshots, unpicked burst shots. **Empty "Recently Deleted"** in one go |
+| **Clean** | **Similar photos** (keeps the sharpest), **blurry** and **dark** photos with the deep analysis; large videos (largest first; remove or **compress** to about half), **Live Photo → photo** (drops the 3-second video), identical duplicates (the original stays), screen recordings, screenshots, unpicked burst shots. **Empty "Recently Deleted"** in one go |
 | **Apps** | Only inside LiveContainer: space used by each hosted app, clear caches and temp files, remove leftover .ipa files and data of uninstalled apps |
 | **Phone** | Battery, Low Power Mode, thermal state as reported by iOS, storage, memory, uptime, tips ordered by impact |
 

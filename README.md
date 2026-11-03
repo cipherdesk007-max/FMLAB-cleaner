@@ -28,7 +28,7 @@ dall'URL → Incolla. Si installa sopra la versione vecchia e i dati restano. Fu
 
 | Scheda | Cosa fa |
 |---|---|
-| **Pulizia** | Video grandi (dal più pesante, da togliere o **comprimere** a metà peso), **Live Photo → foto** (via il video di 3 secondi), doppioni identici (l'originale resta), registrazioni dello schermo, screenshot, scatti a raffica non scelti. **Svuota "Eliminati di recente"** tutto in una volta |
+| **Pulizia** | **Foto simili** (resta la più nitida), **sfocate** e **buie** con l'analisi approfondita; video grandi (dal più pesante, da togliere o **comprimere** a metà peso), **Live Photo → foto** (via il video di 3 secondi), doppioni identici (l'originale resta), registrazioni dello schermo, screenshot, scatti a raffica non scelti. **Svuota "Eliminati di recente"** tutto in una volta |
 | **App** | Solo dentro LiveContainer: quanto occupa ogni app ospitata, svuota cache e file temporanei, toglie i file .ipa rimasti e i dati di app già disinstallate |
 | **Telefono** | Batteria, risparmio energetico, temperatura come la comunica iOS, spazio, memoria, da quanto è acceso, consigli in ordine di effetto |
 
