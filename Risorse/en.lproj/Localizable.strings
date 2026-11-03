@@ -139,3 +139,17 @@
 "Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione, apri le chat più pesanti e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento, così le foto non si duplicano in Foto." = "Settings → Storage and Data → Manage Storage: sort by size, open the biggest chats and remove videos and forwarded files. Then Settings → Chats → Save to Photos: off, so photos don't get duplicated in Photos.";
 "Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache (i messaggi restano sul cloud di Telegram). Imposta \"Conserva media\" a 1 settimana e un limite alla cache." = "Settings → Data and Storage → Storage Usage → Clear Cache (messages stay in Telegram's cloud). Set \"Keep Media\" to 1 week and a cache limit.";
 "Apri" = "Open";
+"Quello che togli resta lì 30 giorni e occupa ancora spazio. iOS non lascia svuotare quell'album a nessuna app: si svuota solo dall'app Foto, con **Seleziona → Elimina tutto** (in basso a sinistra), che toglie anche ciò che non è ancora comparso sullo schermo." = "What you remove stays there for 30 days and still uses space. iOS lets no app empty that album: only the Photos app can, with **Select → Delete All** (bottom left), which also removes what hasn't appeared on screen yet.";
+"Se sono installate in LiveContainer si puliscono da qui. Se sono installate dall'App Store, iOS chiude i loro file: nessuna app può toccarli, si puliscono dalle loro impostazioni." = "If they are installed in LiveContainer they are cleaned from here. If installed from the App Store, iOS locks their files: no app can touch them, they are cleaned from their own settings.";
+"Foto, video e file delle chat restano sul cloud di Telegram: si riscaricano quando li riapri." = "Chat photos, videos and files stay in Telegram's cloud: they download again when you reopen them.";
+"Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache. Consiglio: reinstallalo dentro LiveContainer (le chat sono sul cloud, basta rientrare) e da qui lo pulisci senza uscire." = "Settings → Data and Storage → Storage Usage → Clear Cache. Tip: reinstall it inside LiveContainer (chats are in the cloud, just log in again) and clean it from here without leaving.";
+"Foto e video delle chat: %@. Non sono su un cloud: si tolgono da WhatsApp → Impostazioni → Spazio e dati → Gestisci spazio." = "Chat photos and videos: %@. They are not in a cloud: remove them in WhatsApp → Settings → Storage and Data → Manage Storage.";
+"Le chat non si toccano: si toglie solo ciò che WhatsApp ricrea da solo." = "Chats are never touched: only what WhatsApp recreates on its own is removed.";
+"Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento." = "Settings → Storage and Data → Manage Storage: sort by size and remove videos and forwarded files. Then Settings → Chats → Save to Photos: off.";
+"Pulire %@?" = "Clean %@?";
+"Pulisci %@" = "Clean %@";
+"Chiudi prima l'app in LiveContainer. Chat e impostazioni restano." = "Close the app in LiveContainer first. Chats and settings stay.";
+"In LiveContainer · cache %@" = "In LiveContainer · cache %@";
+" · media scaricati %@" = " · downloaded media %@";
+"Pulisci qui · %@" = "Clean here · %@";
+"condivisi" = "shared";

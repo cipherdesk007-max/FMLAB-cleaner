@@ -6,6 +6,7 @@ import UIKit
 struct PuliziaFotoApp: App {
     @StateObject private var libreria = Libreria()
     @StateObject private var aggiornamenti = Aggiornamenti()
+    @StateObject private var spazio = SpazioLC()
 
     init() { Tema.applica() }
 
@@ -25,7 +26,9 @@ struct PuliziaFotoApp: App {
             }
                 .environmentObject(libreria)
                 .environmentObject(aggiornamenti)
+                .environmentObject(spazio)
                 .task { await aggiornamenti.controlla() }
+                .task { if SpazioLC.disponibile { await spazio.analizza() } }
                 .tint(Tema.rosso)
                 .accentColor(Tema.rosso)
                 .preferredColorScheme(.dark)
@@ -126,6 +129,23 @@ struct Riepilogo: View {
                 }
                 .padding(.vertical, 6)
             }
+            Section("Cosa togliere") {
+                ForEach(Categoria.allCases) { c in
+                    NavigationLink(destination: Elenco(categoria: c)) {
+                        HStack {
+                            Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
+                            VStack(alignment: .leading) {
+                                Text(c.titolo)
+                                Text(contaElementi(lib.elementi(c).filter { !$0.daTenere }.count))
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Text(lib.peso(c) > 0 ? formatoByte(lib.peso(c)) : "—").foregroundColor(.secondary).monospacedDigit()
+                        }
+                    }
+                    .disabled(lib.elementi(c).isEmpty)
+                }
+            }
             Section {
                 if let c = lib.cestino {
                     VStack(alignment: .leading, spacing: 8) {
@@ -145,8 +165,8 @@ struct Riepilogo: View {
                     // iOS non lascia leggere l'album alle app: si spiega il modo piu' veloce a mano
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Eliminati di recente", systemImage: "trash").font(.headline)
-                        Text("Le foto tolte occupano spazio per 30 giorni. Per svuotarle tutte insieme: Foto → Raccolte → Eliminati di recente → Seleziona → **Elimina tutto** (in basso a sinistra): toglie anche quelle non ancora caricate sullo schermo.")
-                            .font(.footnote)
+                        Text("Quello che togli resta lì 30 giorni e occupa ancora spazio. iOS non lascia svuotare quell'album a nessuna app: si svuota solo dall'app Foto, con **Seleziona → Elimina tutto** (in basso a sinistra), che toglie anche ciò che non è ancora comparso sullo schermo.")
+                            .font(.footnote).foregroundColor(.secondary)
                         Button { if let u = URL(string: "photos-redirect://") { apri(u) } } label: {
                             Label("Apri Foto", systemImage: "photo.on.rectangle").frame(maxWidth: .infinity)
                         }
@@ -158,24 +178,7 @@ struct Riepilogo: View {
             Section {
                 AltreApp()
             } header: { Text("WhatsApp e Telegram") } footer: {
-                Text("iOS chiude ogni app nella sua cartella: nessuna app può cancellare i file di WhatsApp o Telegram al posto loro. Da qui li apri sulla pagina giusta in due tocchi.")
-            }
-            Section("Cosa togliere") {
-                ForEach(Categoria.allCases) { c in
-                    NavigationLink(destination: Elenco(categoria: c)) {
-                        HStack {
-                            Image(systemName: c.icona).frame(width: 28).foregroundColor(Tema.rosso)
-                            VStack(alignment: .leading) {
-                                Text(c.titolo)
-                                Text(contaElementi(lib.elementi(c).filter { !$0.daTenere }.count))
-                                    .font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Text(lib.peso(c) > 0 ? formatoByte(lib.peso(c)) : "—").foregroundColor(.secondary).monospacedDigit()
-                        }
-                    }
-                    .disabled(lib.elementi(c).isEmpty)
-                }
+                Text("Se sono installate in LiveContainer si puliscono da qui. Se sono installate dall'App Store, iOS chiude i loro file: nessuna app può toccarli, si puliscono dalle loro impostazioni.")
             }
             Section {
                 Text("Doppioni anche dall'app Foto: Raccolte → Utility → Duplicati → Unisci.")
@@ -440,28 +443,74 @@ struct Anteprima: View {
 }
 
 
-// MARK: - WhatsApp e Telegram: guida diretta alla pagina che libera spazio
+// MARK: - WhatsApp e Telegram
+// In LiveContainer i loro file sono raggiungibili: si puliscono qui dentro. Installate dall'App Store no
+// (regola di iOS): allora si spiega dove farlo e c'e' solo il pulsante per aprirle.
 struct AltreApp: View {
+    @EnvironmentObject var spazio: SpazioLC
     @Environment(\.openURL) var apri
+    @State private var daSvuotare: AppOspitata?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            voce(icona: "message.fill", nome: "WhatsApp", url: "whatsapp://",
-                 passi: L("Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione, apri le chat più pesanti e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento, così le foto non si duplicano in Foto."))
+        VStack(alignment: .leading, spacing: 12) {
+            if let t = spazio.telegram {
+                interna(t, icona: "paperplane.fill",
+                        nota: L("Foto, video e file delle chat restano sul cloud di Telegram: si riscaricano quando li riapri."))
+            } else {
+                esterna(icona: "paperplane.fill", nome: "Telegram", url: "tg://settings",
+                        passi: L("Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache. Consiglio: reinstallalo dentro LiveContainer (le chat sono sul cloud, basta rientrare) e da qui lo pulisci senza uscire."))
+            }
             Divider()
-            voce(icona: "paperplane.fill", nome: "Telegram", url: "tg://settings",
-                 passi: L("Impostazioni → Dati e memoria → Utilizzo memoria → Svuota cache (i messaggi restano sul cloud di Telegram). Imposta \"Conserva media\" a 1 settimana e un limite alla cache."))
+            if let w = spazio.whatsapp {
+                interna(w, icona: "message.fill",
+                        nota: w.byteMediaChat > 0
+                            ? L("Foto e video delle chat: %@. Non sono su un cloud: si tolgono da WhatsApp → Impostazioni → Spazio e dati → Gestisci spazio.", formatoByte(w.byteMediaChat))
+                            : L("Le chat non si toccano: si toglie solo ciò che WhatsApp ricrea da solo."))
+            } else {
+                esterna(icona: "message.fill", nome: "WhatsApp", url: "whatsapp://",
+                        passi: L("Impostazioni → Spazio e dati → Gestisci spazio: ordina per dimensione e togli video e file inoltrati. Poi Impostazioni → Chat → Salva nel rullino: spento."))
+            }
         }
         .padding(.vertical, 4)
+        .confirmationDialog(L("Pulire %@?", daSvuotare?.nome ?? ""), isPresented: Binding(get: { daSvuotare != nil }, set: { if !$0 { daSvuotare = nil } }), titleVisibility: .visible) {
+            Button(L("Pulisci %@", formatoByte((daSvuotare?.cache ?? 0) + (daSvuotare?.byteScaricabili ?? 0))), role: .destructive) {
+                if let a = daSvuotare {
+                    Task {
+                        if a.byteScaricabili > 0 { await spazio.togliScaricabili(a) }
+                        await spazio.svuotaCache(a)
+                        Vibrazione.fatto()
+                    }
+                }
+            }
+        } message: { Text(L("Chiudi prima l'app in LiveContainer. Chat e impostazioni restano.")) }
     }
 
-    func voce(icona: String, nome: String, url: String, passi: String) -> some View {
+    func interna(_ a: AppOspitata, icona: String, nota: String) -> some View {
+        let pulibile = a.cache + a.byteScaricabili
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label(a.nome, systemImage: icona).font(.headline)
+                Spacer()
+                Text(formatoByte(a.totale)).foregroundColor(.secondary).monospacedDigit()
+            }
+            Text(L("In LiveContainer · cache %@", formatoByte(a.cache)) + (a.byteScaricabili > 0 ? L(" · media scaricati %@", formatoByte(a.byteScaricabili)) : ""))
+                .font(.caption).foregroundColor(.secondary)
+            Text(nota).font(.footnote).foregroundColor(.secondary)
+            if pulibile > 1_000_000 {
+                Button { daSvuotare = a } label: {
+                    Label(L("Pulisci qui · %@", formatoByte(pulibile)), systemImage: "sparkles").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+
+    func esterna(icona: String, nome: String, url: String, passi: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Label(nome, systemImage: icona).font(.headline)
                 Spacer()
-                Button(L("Apri")) { if let u = URL(string: url) { apri(u) } }
-                    .buttonStyle(.bordered)
+                Button(L("Apri")) { if let u = URL(string: url) { apri(u) } }.buttonStyle(.bordered)
             }
             Text(passi).font(.footnote).foregroundColor(.secondary)
         }

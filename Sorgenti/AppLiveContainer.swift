@@ -18,11 +18,19 @@ struct Cartella: Identifiable, Hashable {
 struct AppOspitata: Identifiable {
     let nome: String
     let bundle: URL
+    let bundleId: String
     let byteApp: Int64
     var dati: [Cartella]
+    /// File che l'app riscarica da sola (es. foto e video di Telegram: restano sul cloud di Telegram)
+    var scaricabili: [URL] = []
+    var byteScaricabili: Int64 = 0
+    /// Solo da mostrare: media delle chat di WhatsApp (non sono su un cloud: si tolgono da WhatsApp)
+    var byteMediaChat: Int64 = 0
     var id: String { bundle.path }
     var totale: Int64 { byteApp + dati.reduce(0) { $0 + $1.byte } }
     var cache: Int64 { dati.reduce(0) { $0 + $1.cache } }
+    var isTelegram: Bool { bundleId.hasPrefix("ph.telegra") || bundleId.lowercased().contains("telegram") }
+    var isWhatsApp: Bool { bundleId.lowercased().contains("whatsapp") }
 }
 
 enum Disco {
@@ -74,6 +82,17 @@ final class SpazioLC: ObservableObject {
         analisi = false
     }
 
+    /// Dove LiveContainer tiene i contenitori condivisi delle app ospitate (vedi NSFileManager+GuestHooks.m)
+    nonisolated static func gruppiBase(_ r: URL) -> [URL] {
+        var out = [r.appendingPathComponent("Data/AppGroup")]
+        let sel = NSSelectorFromString("lcAppGroupPath")
+        if (UserDefaults.self as AnyObject).responds(to: sel),
+           let p = (UserDefaults.self as AnyObject).perform(sel)?.takeUnretainedValue() as? String {
+            out.append(URL(fileURLWithPath: p).appendingPathComponent("LiveContainer/Data/AppGroup"))
+        }
+        return out.filter { FileManager.default.fileExists(atPath: $0.path) }
+    }
+
     nonisolated static func leggi(_ r: URL) -> ([AppOspitata], [Cartella], [Cartella]) {
         let fm = FileManager.default
         let dir = r.appendingPathComponent("Data/Application")
@@ -93,6 +112,7 @@ final class SpazioLC: ObservableObject {
                 }
             }
             if let u = lcInfo["LCDataUUID"] as? String, !cartelle.contains(where: { $0.0 == u }) { cartelle.append((u, "dati")) }
+            let bundleId = (lcInfo["LCOrignalBundleIdentifier"] ?? info["CFBundleIdentifier"]) as? String ?? ""
             var dati: [Cartella] = []
             for (f, n) in cartelle {
                 let u = dir.appendingPathComponent(f)
@@ -101,7 +121,37 @@ final class SpazioLC: ObservableObject {
                 dati.append(Cartella(url: u, nome: n, byte: Disco.peso(u),
                                      cache: Disco.cacheDi(u).reduce(0) { $0 + Disco.peso($1) }))
             }
-            app.append(AppOspitata(nome: nome, bundle: b, byteApp: Disco.peso(b), dati: dati))
+            // contenitori condivisi (app group) dell'app: Telegram e WhatsApp tengono li' quasi tutto
+            var gruppi: [URL] = []
+            if !bundleId.isEmpty {
+                for base in gruppiBase(r) {
+                    for g in (try? fm.contentsOfDirectory(at: base, includingPropertiesForKeys: nil)) ?? []
+                    where g.lastPathComponent.contains(bundleId) {
+                        gruppi.append(g)
+                        dati.append(Cartella(url: g, nome: L("condivisi"), byte: Disco.peso(g),
+                                             cache: Disco.cacheDi(g).reduce(0) { $0 + Disco.peso($1) }))
+                    }
+                }
+            }
+            var a = AppOspitata(nome: nome, bundle: b, bundleId: bundleId, byteApp: Disco.peso(b), dati: dati)
+            if a.isTelegram {
+                // foto, video e file scaricati nelle chat: Telegram li riscarica dal suo cloud quando servono
+                for g in gruppi + dati.map(\.url) {
+                    let td = g.appendingPathComponent("telegram-data")
+                    for acc in (try? fm.contentsOfDirectory(at: td, includingPropertiesForKeys: nil)) ?? []
+                    where acc.lastPathComponent.hasPrefix("account-") {
+                        let m = acc.appendingPathComponent("postbox/media")
+                        if fm.fileExists(atPath: m.path) { a.scaricabili.append(m); a.byteScaricabili += Disco.peso(m) }
+                    }
+                }
+            }
+            if a.isWhatsApp {
+                for g in gruppi {
+                    let m = g.appendingPathComponent("Message/Media")
+                    if fm.fileExists(atPath: m.path) { a.byteMediaChat += Disco.peso(m) }
+                }
+            }
+            app.append(a)
         }
         // dati di app non piu' installate in LiveContainer (solo se ho riconosciuto almeno un'app:
         // se non riesco a leggere le app, non dichiaro "orfano" niente)
@@ -141,6 +191,16 @@ final class SpazioLC: ObservableObject {
         await analizza()
     }
 
+    func togliScaricabili(_ a: AppOspitata) async {
+        let prima = a.byteScaricabili
+        await Task.detached { for u in a.scaricabili { Disco.svuota(u) } }.value
+        liberato += prima
+        await analizza()
+    }
+
+    var whatsapp: AppOspitata? { app.first { $0.isWhatsApp } }
+    var telegram: AppOspitata? { app.first { $0.isTelegram } }
+
     func elimina(_ c: Cartella) async {
         await Task.detached { try? FileManager.default.removeItem(at: c.url) }.value
         liberato += c.byte
@@ -149,7 +209,7 @@ final class SpazioLC: ObservableObject {
 }
 
 struct SchedaApp: View {
-    @StateObject private var s = SpazioLC()
+    @EnvironmentObject var s: SpazioLC
     @State private var daEliminare: Cartella?
     @State private var cacheDi: AppOspitata?
 

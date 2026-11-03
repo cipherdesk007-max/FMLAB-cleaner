@@ -1,6 +1,19 @@
 # Changelog — FMLAB Cleaner
 
-## 1.5.0 — versione completa
+## 1.6.0 — versione completa
+- **WhatsApp e Telegram puliti dentro l'app** quando sono installati in LiveContainer: l'app riconosce anche i
+  loro contenitori condivisi (dove tengono quasi tutto) e con **Pulisci qui** toglie cache e, per Telegram, i
+  media scaricati (restano sul cloud di Telegram). Le chat non si toccano. Per WhatsApp mostra quanto pesano foto e
+  video delle chat (non sono su un cloud: si tolgono da WhatsApp).
+- Se sono installate dall'App Store, iOS non lascia toccare i loro file a nessuna app: restano i passi e "Apri".
+- **Ordine nuovo** della Pulizia: prima "Cosa togliere", poi Eliminati di recente, WhatsApp e Telegram, consigli.
+- Eliminati di recente: spiegato in una frase perché si svuota solo dall'app Foto (iOS non lo apre alle app).
+
+*English*: WhatsApp/Telegram cleaned inside the app when installed in LiveContainer (shared containers detected;
+Telegram downloaded media cleared, chats untouched; WhatsApp chat media size shown); App Store installs stay
+sandboxed by iOS; new Clean tab order; clearer Recently Deleted note.
+
+## 1.5.0
 - Pulsanti delle azioni distinti: **Comprimi** / **Trasforma in foto** bianchi, **Togli** rosso; uno sopra
   l'altro, leggibili anche con numeri lunghi.
 - Pubblicate anche le versioni storiche (1.1.0 e 1.3.0) tra le release; la 1.2.0 e la 1.4.0 sono comprese
