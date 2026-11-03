@@ -281,7 +281,6 @@ struct SchedaFile: View {
             }
             .ignoresSafeArea()
         }
-        }
     }
 }
 
