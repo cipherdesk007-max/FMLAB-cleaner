@@ -268,7 +268,7 @@ struct Elenco: View {
             } label: { Image(systemName: "checkmark.circle") }
         }
         .safeAreaInset(edge: .bottom) {
-            HStack(spacing: 10) {
+            VStack(spacing: 8) {
                 if categoria == .videoGrandi && !scelti.isEmpty {
                     Button {
                         lavoro = .comprimi; comprimi = true
@@ -276,7 +276,7 @@ struct Elenco: View {
                         Text("Comprimi · ~\(formatoByte(pesoScelti / 2))")
                             .frame(maxWidth: .infinity).padding(.vertical, 6)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.borderedProminent).tint(.white).foregroundColor(.black)
                 }
                 if categoria == .live && !scelti.isEmpty {
                     Button {
@@ -285,7 +285,7 @@ struct Elenco: View {
                         Text("Trasforma in foto · \(formatoByte(pesoScelti))")
                             .frame(maxWidth: .infinity).padding(.vertical, 6)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.borderedProminent).tint(.white).foregroundColor(.black)
                 }
                 if categoria != .live { Button {
                     conferma = true

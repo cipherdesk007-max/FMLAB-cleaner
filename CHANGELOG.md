@@ -1,5 +1,13 @@
 # Changelog — FMLAB Cleaner
 
+## 1.5.0 — versione completa
+- Pulsanti delle azioni distinti: **Comprimi** / **Trasforma in foto** bianchi, **Togli** rosso; uno sopra
+  l'altro, leggibili anche con numeri lunghi.
+- Pubblicate anche le versioni storiche (1.1.0 e 1.3.0) tra le release; la 1.2.0 e la 1.4.0 sono comprese
+  nelle versioni successive (1.3.0 e 1.4.1).
+
+*English*: distinct action buttons (white Compress/Convert, red Remove, stacked); historical releases published.
+
 ## 1.4.1
 - **Eliminati di recente sempre visibile** in cima alla Pulizia: se iOS lascia leggere l'album, numero, peso e
   "Svuota tutto"; se no, i passi per "Elimina tutto" e il pulsante **Apri Foto**.
