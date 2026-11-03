@@ -1,6 +1,8 @@
 # Changelog — FMLAB Cleaner
 
 ## 1.8.3
+*Provata sull'iPhone: "Aggiungi una cartella" aggiunge Downloads e l'analisi parte subito.*
+
 - **"Aggiungi una cartella" non si blocca più su "Apri"** (rotella che girava all'infinito, anche su "Sul mio iPhone").
   Il motivo: dentro LiveContainer il selettore di File provava a consegnare la cartella a un'app con il nome
   sbagliato e restava ad aspettare. Ora FMLAB Cleaner si ripara da solo, senza toccare le impostazioni di LiveContainer.
