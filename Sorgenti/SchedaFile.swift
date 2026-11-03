@@ -223,26 +223,53 @@ final class ArchivioFile: ObservableObject {
         analisi = false
     }
 
+    /// Toglie un file; nil se ci riesce, altrimenti il motivo
+    nonisolated static func eliminaUno(_ f: FileTrovato) -> String? {
+        let fm = FileManager.default
+        // un file solo su iCloud esiste sul telefono come segnaposto ".nome.icloud"
+        let segnaposto = f.url.deletingLastPathComponent().appendingPathComponent("." + f.url.lastPathComponent + ".icloud")
+        guard let u = [f.url, segnaposto].first(where: { fm.fileExists(atPath: $0.path) }) else { return nil } // gia' sparito
+        var ultimo = ""
+        do { try fm.trashItem(at: u, resultingItemURL: nil); return nil } catch { ultimo = error.localizedDescription }
+        do { try fm.removeItem(at: u); return nil } catch { ultimo = error.localizedDescription }
+        // ultima via: il coordinatore di file, con un limite di 8 secondi perche' puo' non rispondere
+        let coord = NSFileCoordinator()
+        let fatto = DispatchSemaphore(value: 0)
+        var riuscito = false
+        DispatchQueue.global().async {
+            var errore: NSError?
+            coord.coordinate(writingItemAt: u, options: .forDeleting, error: &errore) { v in
+                riuscito = (try? fm.removeItem(at: v)) != nil
+            }
+            if let e = errore { ultimo = e.localizedDescription }
+            fatto.signal()
+        }
+        if fatto.wait(timeout: .now() + 8) == .timedOut { coord.cancel(); return L("iOS non risponde") }
+        return riuscito || !fm.fileExists(atPath: u.path) ? nil : ultimo
+    }
+
     func peso(_ t: TipoFile) -> Int64 { (risultato[t] ?? []).filter { !$0.daTenere }.reduce(0) { $0 + $1.byte } }
 
+    /// Esito dell'ultima pulizia, mostrato sotto l'elenco
+    @Published var esitoTogli: String?
+
     /// Sposta nel cestino dell'app File (recuperabile 30 giorni); se non si puo', cancella.
+    /// Dentro LiveContainer il coordinatore di file di iOS spesso non risponde (l'app ha un identificativo
+    /// diverso da quello che il sistema si aspetta): prima si prova direttamente, il coordinatore e' l'ultima via.
     func togli(_ scelti: [FileTrovato]) async -> Int {
         let c = cartelle + [automatica].compactMap { $0 }
-        let fatti = await Task.detached { () -> [String] in
-            var ok: [String] = []
+        let (fatti, errori) = await Task.detached { () -> ([String], [String]) in
+            var ok: [String] = [], errori: [String] = []
+            // la cartella scelta va "aperta" per tutto il tempo (permesso di scrittura di iOS)
+            let aperte = c.filter { $0.startAccessingSecurityScopedResource() }
+            defer { aperte.forEach { $0.stopAccessingSecurityScopedResource() } }
             for f in scelti {
-                let base = c.first { f.url.path.hasPrefix($0.path) }
-                let aperta = base?.startAccessingSecurityScopedResource() ?? false
-                defer { if aperta { base?.stopAccessingSecurityScopedResource() } }
-                var errore: NSError?
-                NSFileCoordinator().coordinate(writingItemAt: f.url, options: .forDeleting, error: &errore) { u in
-                    do { try FileManager.default.trashItem(at: u, resultingItemURL: nil); ok.append(f.id) } catch {
-                        if (try? FileManager.default.removeItem(at: u)) != nil { ok.append(f.id) }
-                    }
-                }
+                if let e = ArchivioFile.eliminaUno(f) { errori.append("\(f.nome): \(e)") } else { ok.append(f.id) }
             }
-            return ok
+            return (ok, errori)
         }.value
+        esitoTogli = errori.isEmpty ? nil
+            : L("%lld non tolti. %@", errori.count, errori.prefix(3).joined(separator: " · "))
         let via = Set(fatti)
         liberato += scelti.filter { via.contains($0.id) }.reduce(0) { $0 + $1.byte }
         for t in TipoFile.allCases { risultato[t] = (risultato[t] ?? []).filter { !via.contains($0.id) } }
@@ -362,6 +389,9 @@ struct ElencoFile: View {
                     if s { scelti.remove(f.id) } else { scelti.insert(f.id) }
                 }
             }
+            if let e = archivio.esitoTogli {
+                Text(e).font(.footnote).foregroundColor(.orange)
+            }
             Color.clear.frame(height: 70).listRowBackground(Color.clear)
         }
         .navigationTitle(tipo.titolo)
@@ -384,7 +414,11 @@ struct ElencoFile: View {
         .confirmationDialog(L("Togliere %@ (%@)?", contaFile(scelti.count), formatoByte(peso)), isPresented: $conferma, titleVisibility: .visible) {
             Button(L("Sposta nel cestino di File"), role: .destructive) {
                 let lista = sceltiFile
-                Task { _ = await archivio.togli(lista); scelti = []; Vibrazione.fatto() }
+                Task {
+                    let n = await archivio.togli(lista)
+                    scelti = Set(lista.map(\.id)).intersection(Set(file.map(\.id)))   // restano spuntati quelli non tolti
+                    if n > 0 { Vibrazione.fatto() }
+                }
             }
         } message: { Text(L("Di solito finiscono in File → Eliminati di recente (30 giorni). Dove iOS non ha il cestino, vengono cancellati subito.")) }
         .onAppear {

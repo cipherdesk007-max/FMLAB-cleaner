@@ -218,3 +218,5 @@
 "%@ · dati vecchi" = "%@ · old data";
 "App sconosciuta" = "Unknown app";
 "l'app è installata ma usa un'altra cartella" = "the app is installed but uses another folder";
+"%lld non tolti. %@" = "%lld not removed. %@";
+"iOS non risponde" = "iOS is not responding";

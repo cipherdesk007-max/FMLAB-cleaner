@@ -1,5 +1,15 @@
 # Changelog — FMLAB Cleaner
 
+## 1.8.6
+- **Scheda File: "Sposta nel cestino" ora toglie davvero i file.** Dentro LiveContainer il coordinatore di file di
+  iOS non rispondeva e i file restavano dov'erano senza nessun messaggio. Ora l'app prova prima direttamente
+  (cestino di File, altrimenti eliminazione), e il coordinatore resta come ultima via con un limite di 8 secondi.
+- Le cartelle scelte restano aperte per tutta la pulizia; i file solo su iCloud si tolgono dal loro segnaposto.
+- Se qualche file non si può togliere, l'app lo dice con il motivo e lo lascia spuntato.
+
+*English*: Files tab: "Move to Files trash" now really removes files inside LiveContainer (direct removal first,
+file coordinator last with a timeout); iCloud-only files handled; failures are reported with the reason.
+
 ## 1.8.5
 *Provata sull'iPhone: la cartella orfana ora si legge "LinuxRunner · dati vecchi".*
 
