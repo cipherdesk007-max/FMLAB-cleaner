@@ -50,6 +50,20 @@ enum Vibrazione {
     static func fatto() { UINotificationFeedbackGenerator().notificationOccurred(.success) }
 }
 
+/// Lingua dell'app scelta in Pulizia → Lingua: "auto" (come l'iPhone), "it" o "en". Si applica all'avvio
+/// (prima di qualsiasi testo), quindi dopo il cambio serve chiudere e riaprire l'app.
+enum Lingua {
+    static let chiave = "FMLAB.lingua"
+    static var scelta: String { UserDefaults.standard.string(forKey: chiave) ?? "auto" }
+    static func applica() {
+        let d = UserDefaults.standard
+        switch scelta {
+        case "it", "en": d.set([scelta], forKey: "AppleLanguages")
+        default: d.removeObject(forKey: "AppleLanguages")   // torna a seguire la lingua dell'iPhone
+        }
+    }
+}
+
 /// Testo tradotto (italiano di base, inglese in en.lproj/Localizable.strings).
 func L(_ s: String) -> String { NSLocalizedString(s, comment: "") }
 /// Testo tradotto con valori: L("%lld video saltati", n)

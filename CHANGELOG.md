@@ -1,5 +1,12 @@
 # Changelog — FMLAB Cleaner
 
+## 1.10.0
+- **Lingua nelle impostazioni** (scheda Pulizia → Lingua): *Automatica (come l'iPhone)*, **Italiano** o **English**,
+  indipendente dalla lingua dell'iPhone. Si applica riaprendo l'app (lo dice anche l'app, in tutte e due le lingue).
+
+*English*: language setting (Clean tab → Language): Automatic (same as the iPhone), Italiano or English, independent
+of the iPhone's language. Takes effect after reopening the app.
+
 ## 1.9.1
 - **Fonti e riconoscimenti nell'app** (in fondo alla scheda Pulizia): il codice originale è su GitHub e lì si
   scrivono problemi, segnalazioni e idee (pulsanti per il codice, per segnalare un problema e per le novità di

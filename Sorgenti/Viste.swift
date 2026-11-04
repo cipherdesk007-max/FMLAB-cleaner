@@ -9,7 +9,7 @@ struct PuliziaFotoApp: App {
     @StateObject private var spazio = SpazioLC()
     @StateObject private var archivio = ArchivioFile()
 
-    init() { Tema.applica(); RiparaSelettore.applica() }
+    init() { Lingua.applica(); Tema.applica(); RiparaSelettore.applica() }
 
     var body: some Scene {
         WindowGroup {
@@ -586,9 +586,24 @@ struct AltreApp: View {
 struct Informazioni: View {
     let versione: String
     @Environment(\.openURL) var apri
+    @AppStorage(Lingua.chiave) private var lingua = "auto"
+    @State private var linguaCambiata = false
     static let repo = "https://github.com/cipherdesk007-max/FMLAB-cleaner"
 
     var body: some View {
+        Section {
+            Picker(selection: $lingua) {
+                Text(L("Automatica (come l'iPhone)")).tag("auto")
+                Text("Italiano").tag("it")
+                Text("English").tag("en")
+            } label: { Label(L("Lingua"), systemImage: "globe") }
+            .onChange(of: lingua) { _ in Lingua.applica(); linguaCambiata = true }
+            if linguaCambiata {
+                // in tutte e due le lingue: l'app mostra ancora quella di prima finché non la riapri
+                Text("Chiudi FMLAB Cleaner dal multitasking e riaprila per vedere la lingua nuova.\nClose FMLAB Cleaner from the app switcher and reopen it to see the new language.")
+                    .font(.footnote).foregroundColor(.secondary)
+            }
+        } header: { Text(L("Lingua")) }
         Section {
             Text(L("FMLAB Cleaner è open source (licenza MIT): il codice originale, le versioni e lo storico sono su GitHub. Problemi, segnalazioni e idee: scrivili lì, così restano in un posto solo."))
                 .font(.footnote).foregroundColor(.secondary)
