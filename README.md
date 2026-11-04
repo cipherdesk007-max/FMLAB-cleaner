@@ -7,6 +7,8 @@
 **FMLAB Cleaner** è un'app per iPhone che libera spazio in sicurezza e mostra lo stato vero del telefono.
 Tutto resta sul telefono: niente internet (tranne il controllo aggiornamenti), niente abbonamenti, niente pubblicità.
 
+> **Versione 1.10.0** · in italiano o in inglese, scelto nell'app · si aggiorna da sola da GitHub.
+
 <p align="center">
   <img src="screenshots/pulizia.png" width="24%" alt="Pulizia">
   <img src="screenshots/file.png" width="24%" alt="File">
@@ -27,6 +29,9 @@ e installalo con **+ → Installa da IPA** (se la cartella Download è su iCloud
 
 Gli aggiornamenti li segnala l'app stessa: **Copia link di installazione**, poi in LiveContainer + → Installa
 dall'URL → Incolla. Si installa sopra la versione vecchia e i dati restano. Funziona anche con SideStore/AltStore.
+
+**Lingua**: di base segue quella dell'iPhone. In fondo alla scheda Pulizia → **Lingua** si sceglie *Automatica*,
+**Italiano** o **English**; vale dopo aver chiuso e riaperto l'app.
 
 ## Cosa fa
 
@@ -75,12 +80,20 @@ pubblicità, niente statistiche, niente account.
 
 ## Come è fatta
 
-- SwiftUI + PhotoKit, iOS 15 o successivo, italiano e inglese. Sorgenti in [`Sorgenti/`](Sorgenti/).
+- SwiftUI + PhotoKit, iOS 15 o successivo. Sorgenti in [`Sorgenti/`](Sorgenti/).
+- Italiano (i testi sono nel codice) e inglese ([`theos/Resources/en.lproj`](theos/Resources/en.lproj/Localizable.strings)):
+  prima di ogni compilazione [`strumenti/controlla_traduzioni.py`](strumenti/controlla_traduzioni.py) ferma tutto
+  se un testo nuovo non ha la traduzione inglese o se i valori (`%@`, `%lld`) non corrispondono.
 - Colori FMLAB: rosso `#BF6D6F` (dal logo) su nero.
 - Compilata da GitHub Actions su Linux con [Theos](https://github.com/theos/theos) (nessun Mac necessario):
   a ogni modifica su `main` esce una versione numerata e la pubblicazione **ultima**, da cui l'app si aggiorna.
 - `project.yml` serve per aprirla in Xcode con XcodeGen, se un giorno si usa un Mac.
 - Storico: [CHANGELOG.md](CHANGELOG.md). Licenza: [MIT](LICENSE).
 
-Parte del mondo FMLAB, insieme a [FMlab - RunnerKit](https://github.com/cipherdesk007-max/FMlab---RunnerKit)
-(Linux sull'iPhone con LinuxRunner).
+## Il mondo FMLAB
+
+- **[FMLAB Linux](https://github.com/cipherdesk007-max/fmlab-Linux-io)**: Linux vero sull'iPhone (Debian, Arch,
+  Alpine), la versione FMLAB di LinuxRunner, con desktop a schermo intero che si gira col telefono. Si aggiorna
+  dall'app come FMLAB Cleaner.
+- **[FMlab - RunnerKit](https://github.com/cipherdesk007-max/FMlab---RunnerKit)**: gli strumenti dentro quel
+  Linux (TouchPad, Centro, Pulizia, terminale), già inclusi in FMLAB Linux.

@@ -17,6 +17,8 @@ The app follows the iPhone language (Italian or English).
 
 <sub>Screenshots of 1.9.0. Older versions are in [`screenshots/`](screenshots/), one folder per version.</sub>
 
+> **Version 1.10.0** · Italian or English, chosen in the app · updates itself from GitHub.
+
 ## Install
 
 1. Open **LiveContainer** → **+** → **Install from URL** and paste:
@@ -25,6 +27,9 @@ The app follows the iPhone language (Italian or English).
 
 Updates are announced inside the app: **Copy install link**, then in LiveContainer + → Install from URL → Paste.
 It installs over the old version and keeps your data. Works with SideStore/AltStore as a normal app too.
+
+**Language**: by default it follows the iPhone. At the bottom of the Clean tab → **Language** pick *Automatic*,
+**Italiano** or **English**; it applies after closing and reopening the app.
 
 ## What it does
 
@@ -72,11 +77,19 @@ request is the update check, which reads a version number from GitHub. No ads, n
 
 ## How it's built
 
-- SwiftUI + PhotoKit, iOS 15+, Italian and English. Sources in [`Sorgenti/`](Sorgenti/).
+- SwiftUI + PhotoKit, iOS 15+. Sources in [`Sorgenti/`](Sorgenti/).
+- Italian (strings live in the code) and English ([`theos/Resources/en.lproj`](theos/Resources/en.lproj/Localizable.strings)):
+  before every build [`strumenti/controlla_traduzioni.py`](strumenti/controlla_traduzioni.py) stops it if a new
+  string has no English translation or its placeholders (`%@`, `%lld`) don't match.
 - FMLAB colors: red `#BF6D6F` (from the logo) on black.
 - Built by GitHub Actions on Linux with [Theos](https://github.com/theos/theos) (no Mac needed): every change on
   `main` publishes a numbered release and the **ultima** (latest) release the app updates from.
 - History: [CHANGELOG.md](CHANGELOG.md). License: [MIT](LICENSE).
 
-Part of the FMLAB family with [FMlab - RunnerKit](https://github.com/cipherdesk007-max/FMlab---RunnerKit)
-(Linux on iPhone with LinuxRunner).
+## The FMLAB family
+
+- **[FMLAB Linux](https://github.com/cipherdesk007-max/fmlab-Linux-io)**: real Linux on the iPhone (Debian, Arch,
+  Alpine), the FMLAB edition of LinuxRunner, with a full-screen desktop that rotates with the phone. It updates
+  from the app like FMLAB Cleaner.
+- **[FMlab - RunnerKit](https://github.com/cipherdesk007-max/FMlab---RunnerKit)**: the tools inside that Linux
+  (TouchPad, Center, Cleanup, terminal), already included in FMLAB Linux.
